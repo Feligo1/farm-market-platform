@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farm Market Platform — Zambia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background: #f4f8f5; color: #333; transition: background 0.4s, color 0.4s; }
+    body.dark { background: #121212; color: #e5e5e5; }
+
+    header { background: linear-gradient(90deg, #006400, #007a33, #006400); color: white; padding: 15px 0;
+      text-align: center; font-size: 1.8rem; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+
+    .container { width: 90%; max-width: 1100px; margin: 30px auto; background: white; padding: 30px;
+      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: background 0.4s; }
+    body.dark .container { background: #1e1e1e; }
+
+    #loginSection { text-align: center; padding: 50px; }
+    #loginSection input, #loginSection select { width: 80%; max-width: 320px; padding: 12px; margin: 10px auto;
+      border: 1px solid #ccc; border-radius: 6px; display: block; font-size: 1rem; }
+    #loginSection button { background: #006400; color: white; padding: 12px 25px; border: none; border-radius: 8px;
+      margin-top: 10px; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+    #loginSection button:hover { background: #004d26; }
+
+    #dashboard { display: none; }
+
+    .top-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .top-actions button { margin-top: 10px; }
+
+    #summary { display: flex; flex-wrap: wrap; justify-content: space-around; margin: 20px 0; text-align: center; }
+    .card { background: #e8f5e9; border-left: 6px solid #006400; padding: 15px; border-radius: 8px; width: 230px; margin: 10px; transition: 0.4s; }
+    body.dark .card { background: #263238; border-left: 6px solid #00e676; }
+    .card h3 { color: #006400; font-size: 1rem; margin-bottom: 5px; }
+    body.dark .card h3 { color: #80e27e; }
+    .card p { font-size: 1.3rem; font-weight: bold; }
+
+    #controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    select, input, button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; }
+    button.action { background: #007a33; color: white; border: none; cursor: pointer; transition: 0.2s; }
+    button.action:hover { background: #004d26; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
+    th { background: #006400; color: white; padding: 10px; }
+    td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    tr:nth-child(even) { background: #f9f9f9; }
+
+    .admin-panel { background: #fff8e1; padding: 15px; border-radius: 8px; margin-top: 25px; border-left: 5px solid gold; }
+
+    #weatherBox { background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+    body.dark #weatherBox { background: #1a237e; color: white; }
+
+    canvas { margin: 25px 0; max-width: 100%; }
+    footer { text-align: center; padding: 15px; background: #004d26; color: white; margin-top: 40px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header>🌾 Farm Market Information Platform — Zambia</header>
+
+  <!-- LOGIN -->
+  <div class="container" id="loginSection">
+    <h2>🔐 User Login</h2>
+    <input type="text" id="username" placeholder="Enter username">
+    <input type="password" id="password" placeholder="Enter password">
+    <select id="role">
+      <option value="farmer">Farmer</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="login()">Login</button>
+    <p id="loginMessage" style="color:red; margin-top:10px;"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="container" id="dashboard">
+    <div class="top-actions">
+      <h2 id="welcomeText"></h2>
+      <div>
+        <button class="action" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+        <button class="action" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Weather -->
+    <div id="weatherBox">
+      <h3>🌤 Weather Insights</h3>
+      <p id="weatherText">Loading...</p>
+    </div>
+
+    <!-- Summary -->
+    <section id="summary">
+      <div class="card"><h3>Total Records</h3><p id="totalRecords">0</p></div>
+      <div class="card"><h3>Average Maize (ZMW)</h3><p id="avgMaize">0</p></div>
+      <div class="card"><h3>Average Tomatoes (ZMW)</h3><p id="avgTomato">0</p></div>
+      <div class="card"><h3>Total Markets</h3><p id="totalMarkets">0</p></div>
+    </section>
+
+    <!-- Controls -->
+    <div id="controls">
+      <input type="text" id="commodity" placeholder="Commodity (e.g., Maize)">
+      <select id="market">
+        <option value="">All Markets</option>
+        <option value="Lusaka Central">Lusaka Central</option>
+        <option value="Kabwe Main">Kabwe Main</option>
+        <option value="Ndola Market">Ndola Market</option>
+      </select>
+      <button class="action" onclick="loadPrices()">Load Data</button>
+      <button class="action" onclick="showForecast()">Forecast</button>
+      <button class="action" onclick="compareMarkets()">Compare Markets</button>
+      <button class="action" onclick="downloadExcel()">Export Excel</button>
+      <button class="action" onclick="sendSMS()">Send SMS Alert</button>
+    </div>
+
+    <canvas id="chartCanvas" height="100"></canvas>
+    <canvas id="forecastChart" height="100"></canvas>
+    <canvas id="comparisonChart" height="100"></canvas>
+
+    <table id="priceTable">
+      <thead>
+        <tr><th>Date</th><th>Market</th><th>Commodity</th><th>Price (ZMW)</th><th>Volume</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Admin -->
+    <div class="admin-panel" id="adminControls" style="display:none;">
+      <h3>⚙️ Admin Controls</h3>
+      <input type="text" id="newMarket" placeholder="Market">
+      <input type="text" id="newCommodity" placeholder="Commodity">
+      <input type="number" id="newPrice" placeholder="Price">
+      <input type="number" id="newVolume" placeholder="Volume">
+      <button class="action" onclick="addPrice()">Add Record</button>
+      <button class="action" onclick="downloadReport()">Download PDF Report</button>
+    </div>
+  </div>
+
+  <footer>© 2025 Mulungushi University | Supervised By Mr. Nyirenda | Developed by Tech Guy</footer>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:5000/api";
+    let chart = null, forecastChart = null, comparisonChart = null, darkMode = false;
+
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
+      if (!username || !password) return alert("Enter username & password!");
+
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      document.getElementById("welcomeText").innerText = `Welcome ${role.toUpperCase()}, ${username}`;
+      document.getElementById("adminControls").style.display = role === "admin" ? "block" : "none";
+      loadSummary(); loadPrices(); loadWeather();
+    }
+
+    function logout() {
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginSection").style.display = "block";
+    }
+
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      document.body.classList.toggle("dark", darkMode);
+    }
+
+    async function loadWeather(city="Lusaka") {
+      const res = await fetch(`${API_BASE}/weather?city=${city}`);
+      const json = await res.json();
+      if (json.status === "ok") {
+        const w = json.data;
+        document.getElementById("weatherText").innerText =
+          `${w.city}: ${w.temperature}°C, ${w.description}, Humidity ${w.humidity}%`;
+      }
+    }
+
+    async function loadSummary() {
+      const res = await fetch(`${API_BASE}/prices`);
+      const json = await res.json();
+      if (json.status !== "ok") return;
+      const data = json.data;
+      document.getElementById("totalRecords").textContent = data.length;
+      const maize = data.filter(r => r.commodity === "Maize").map(r => r.price);
+      const tomato = data.filter(r => r.commodity === "Tomatoes").map(r => r.price);
+      const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2) : 0;
+      document.getElementById("avgMaize").textContent = avg(maize);
+      document.getElementById("avgTomato").textContent = avg(tomato);
+      document.getElementById("totalMarkets").textContent = new Set(data.map(r=>r.market)).size;
+    }
+
+    async function loadPrices() {
+      const commodity = document.getElementById("commodity").value || "Maize";
+      const market = document.getElementById("market").value;
+      const res = await fetch(`${API_BASE}/commodity-timeseries?commodity=${commodity}${market ? "&market="+market : ""}`);
+      const json = await res.json();
+      const tbody = document.querySelector("#priceTable tbody");
+      tbody.innerHTML = "";
+      const dates = [], prices = [];
+      json.data.forEach(r => {
+        tbody.innerHTML += `<tr><td>${r.date}</td><td>${r.market}</td><td>${commodity}</td><td>${r.price}</td><td>${r.volume||'-'}</td></tr>`;
+        dates.push(r.date); prices.push(r.price);
+      });
+      drawChart(dates, prices, commodity);
+    }
+
+    async function showForecast() {
+      const commodity = document.getElementById("commodity").value || "Maize";
+      const market = document.getElementById("market").value;
+      const res = await fetch(`${API_BASE}/forecast?commodity=${commodity}&market=${market}&days=3`);
+      const json = await res.json();
+      if (json.status !== "ok") return alert("No forecast data.");
+      const preds = json.predictions;
+      const labels = preds.map(p => p.date);
+      const values = preds.map(p => p.predicted_price);
+      if (forecastChart) forecastChart.destroy();
+      forecastChart = new Chart(document.getElementById("forecastChart"), {
+        type: "bar",
+        data: { labels, datasets: [{ label: `Forecast (${commodity})`, data: values, backgroundColor: "#ff9800" }] }
+      });
+    }
+
+    async function compareMarkets() {
+      const commodity = document.getElementById("commodity").value || "Maize";
+      const res = await fetch(`${API_BASE}/market-comparison?commodity=${commodity}`);
+      const json = await res.json();
+      const data = json.data;
+      const labels = data["Lusaka Central"].map(r => r.date);
+      if (comparisonChart) comparisonChart.destroy();
+      comparisonChart = new Chart(document.getElementById("comparisonChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "Lusaka Central", data: data["Lusaka Central"].map(r=>r.price), borderColor: "#1e88e5" },
+            { label: "Kabwe Main", data: data["Kabwe Main"].map(r=>r.price), borderColor: "#43a047" },
+            { label: "Ndola Market", data: data["Ndola Market"].map(r=>r.price), borderColor: "#fbc02d" }
+          ]
+        }
+      });
+    }
+
+    async function addPrice() {
+      const body = {
+        market: document.getElementById("newMarket").value,
+        commodity: document.getElementById("newCommodity").value,
+        price: document.getElementById("newPrice").value,
+        volume: document.getElementById("newVolume").value
+      };
+      const res = await fetch(`${API_BASE}/add-price`, {
+        method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body)
+      });
+      const json = await res.json();
+      alert(json.message || "Added!");
+      loadSummary(); loadPrices();
+    }
+
+    function downloadReport() { window.open(`${API_BASE}/report`, "_blank"); }
+    function downloadExcel() { window.open(`${API_BASE}/export-excel`, "_blank"); }
+    async function sendSMS() {
+      const to = prompt("Enter phone number (e.g., +26097XXXXXXX):");
+      if (!to) return;
+      await fetch(`${API_BASE}/send-sms`, {
+        method: "POST", headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({to, message: "Market update: prices updated on platform."})
+      });
+      alert("SMS alert sent (if Twilio configured).");
+    }
+
+    function drawChart(dates, prices, label) {
+      const ctx = document.getElementById("chartCanvas");
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: "line",
+        data: { labels: dates, datasets: [{ label, data: prices, borderColor: "#006400", fill: true, backgroundColor: "rgba(0,128,0,0.1)" }] }
+      });
+    }
+  </script>
+</body>
+</html>

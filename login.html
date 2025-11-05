@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farm Market Platform — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #006400, #008000);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 40px 50px;
+      width: 350px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    h2 { font-weight: 600; margin-bottom: 25px; }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+      font-size: 1rem;
+    }
+    input::placeholder { color: #555; }
+    select { color: #333; }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: gold;
+      color: #006400;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    button:hover { background: #fff176; }
+    .error { color: #ffdddd; margin-top: 10px; font-size: 0.9rem; }
+    footer {
+      position: absolute;
+      bottom: 15px;
+      text-align: center;
+      width: 100%;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>🌾 Farm Market Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <select id="role">
+      <option value="farmer">Farmer</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="login()">Login</button>
+    <p id="msg" class="error"></p>
+  </div>
+
+  <footer>© 2025 Mulungushi University | Supervised by Mr. E Nyirenda.</footer>
+
+  <script>
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const role = document.getElementById('role').value;
+
+      if (!username || !password) {
+        document.getElementById('msg').innerText = "⚠️ Enter both username and password!";
+        return;
+      }
+
+      // --- Simulated authentication ---
+      if (role === 'admin') {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Flask==3.0.3
+Flask-Cors==4.0.1
+SQLAlchemy==2.0.35
+mysql-connector-python==9.1.0
+pandas==2.2.3
+reportlab==4.2.4
+gunicorn==23.0.0
+requests==2.32.3
+twilio==9.4.3
