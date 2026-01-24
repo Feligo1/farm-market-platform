@@ -1,280 +1,1364 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Farm Market Platform — Zambia</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-    body { background: #f4f8f5; color: #333; transition: background 0.4s, color 0.4s; }
-    body.dark { background: #121212; color: #e5e5e5; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmConnect - Cloud Market Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== BASE STYLES ===== */
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #1f6b43;
+            --primary-light: #3CB371;
+            --secondary: #FFA500;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
 
-    header { background: linear-gradient(90deg, #006400, #007a33, #006400); color: white; padding: 15px 0;
-      text-align: center; font-size: 1.8rem; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .container { width: 90%; max-width: 1100px; margin: 30px auto; background: white; padding: 30px;
-      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: background 0.4s; }
-    body.dark .container { background: #1e1e1e; }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    #loginSection { text-align: center; padding: 50px; }
-    #loginSection input, #loginSection select { width: 80%; max-width: 320px; padding: 12px; margin: 10px auto;
-      border: 1px solid #ccc; border-radius: 6px; display: block; font-size: 1rem; }
-    #loginSection button { background: #006400; color: white; padding: 12px 25px; border: none; border-radius: 8px;
-      margin-top: 10px; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-    #loginSection button:hover { background: #004d26; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    #dashboard { display: none; }
+        /* ===== LAYOUT ===== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-    .top-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .top-actions button { margin-top: 10px; }
+        /* ===== HEADER ===== */
+        header { 
+            background-color: white; 
+            box-shadow: var(--shadow); 
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none;
+        }
+        .logo i { margin-right: 10px; }
+        
+        /* Navigation */
+        nav { display: block; }
+        nav ul { 
+            display: flex; 
+            list-style: none; 
+            gap: 15px;
+        }
+        nav a { 
+            font-weight: 600; 
+            transition: var(--transition); 
+            text-decoration: none;
+            color: var(--dark);
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            display: block;
+        }
+        nav a:hover,
+        nav a.active { 
+            color: var(--primary); 
+            background: rgba(46, 139, 87, 0.1);
+        }
+        
+        .mobile-menu-btn { 
+            display: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--dark); 
+            background: none;
+            border: none;
+            padding: 8px;
+        }
 
-    #summary { display: flex; flex-wrap: wrap; justify-content: space-around; margin: 20px 0; text-align: center; }
-    .card { background: #e8f5e9; border-left: 6px solid #006400; padding: 15px; border-radius: 8px; width: 230px; margin: 10px; transition: 0.4s; }
-    body.dark .card { background: #263238; border-left: 6px solid #00e676; }
-    .card h3 { color: #006400; font-size: 1rem; margin-bottom: 5px; }
-    body.dark .card h3 { color: #80e27e; }
-    .card p { font-size: 1.3rem; font-weight: bold; }
+        /* ===== HERO SECTION ===== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
 
-    #controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    select, input, button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; }
-    button.action { background: #007a33; color: white; border: none; cursor: pointer; transition: 0.2s; }
-    button.action:hover { background: #004d26; }
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
-    th { background: #006400; color: white; padding: 10px; }
-    td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    tr:nth-child(even) { background: #f9f9f9; }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
 
-    .admin-panel { background: #fff8e1; padding: 15px; border-radius: 8px; margin-top: 25px; border-left: 5px solid gold; }
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
 
-    #weatherBox { background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-    body.dark #weatherBox { background: #1a237e; color: white; }
+        .hero-cta {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-    canvas { margin: 25px 0; max-width: 100%; }
-    footer { text-align: center; padding: 15px; background: #004d26; color: white; margin-top: 40px; font-size: 0.85rem; }
-  </style>
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 16px 32px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--light);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #e69500;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* ===== FEATURES SECTION ===== */
+        .features {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            text-align: center;
+            transition: var(--transition);
+            border-top: 4px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            border-top-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            height: 80px;
+            width: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* ===== ACCESS METHODS ===== */
+        .access-methods {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+
+        .access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .access-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .access-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .access-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            height: 80px;
+            width: 80px;
+            background: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+        }
+
+        .access-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .access-card p {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .access-code {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* ===== ZAMBIAN COMMODITIES ===== */
+        .commodities {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .commodities-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .commodity-tag {
+            background: var(--light);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .commodity-tag:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            background: white;
+        }
+
+        /* ===== STATS SECTION ===== */
+        .stats {
+            padding: 80px 0;
+            background: var(--primary);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* ===== LIVE TICKER ===== */
+        .live-ticker {
+            background: var(--primary-dark);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            transition: bottom 0.3s ease;
+        }
+
+        .ticker-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .ticker-label {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-right: 20px;
+        }
+
+        .ticker-content {
+            flex: 1;
+            overflow: hidden;
+            height: 30px;
+            position: relative;
+        }
+
+        .ticker-items {
+            display: flex;
+            gap: 40px;
+            position: absolute;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ticker-price {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 3rem;
+            margin-bottom: 25px;
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-demo {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn-demo:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 80px 0 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .footer-section h3:after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary);
+            bottom: 0;
+            left: 0;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: #bbb;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            nav {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                background: white;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                padding: 30px;
+                transition: var(--transition);
+                z-index: 999;
+            }
+            nav.active {
+                left: 0;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+            nav li {
+                margin: 0;
+            }
+            nav a {
+                padding: 15px;
+                width: 100%;
+                display: block;
+                border-radius: var(--radius);
+            }
+            .hero {
+                padding: 80px 0 60px;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+                padding: 0 20px;
+            }
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            .section-title p {
+                font-size: 1.1rem;
+                padding: 0 20px;
+            }
+            .features,
+            .access-methods,
+            .commodities,
+            .cta {
+                padding: 60px 0;
+            }
+            .feature-card,
+            .access-card {
+                padding: 30px 20px;
+            }
+            .cta h2 {
+                font-size: 2.2rem;
+            }
+            .cta p {
+                font-size: 1.1rem;
+                padding: 0 20px;
+            }
+            .btn {
+                padding: 14px 28px;
+                width: 100%;
+                justify-content: center;
+                margin: 0;
+            }
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+                padding: 0 20px;
+            }
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+                padding: 0 20px;
+            }
+            .cta-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .stats {
+                padding: 60px 0;
+            }
+            .stat-number {
+                font-size: 2.2rem;
+            }
+            .footer-grid {
+                gap: 40px;
+            }
+            .ticker-container {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            .ticker-label {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+            .feature-card,
+            .access-card {
+                padding: 25px 15px;
+            }
+            .features-grid,
+            .access-grid {
+                gap: 20px;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
+            .cta h2 {
+                font-size: 1.8rem;
+            }
+            .commodity-tag {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ===== STATUS INDICATORS ===== */
+        .status-online {
+            color: var(--success) !important;
+        }
+        .status-offline {
+            color: var(--warning) !important;
+        }
+        .status-error {
+            color: var(--danger) !important;
+        }
+
+        /* ===== LOADING INDICATOR ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <header>🌾 Farm Market Information Platform — Zambia</header>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-tractor"></i>
+                <span>FarmConnect</span>
+            </a>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
 
-  <!-- LOGIN -->
-  <div class="container" id="loginSection">
-    <h2>🔐 User Login</h2>
-    <input type="text" id="username" placeholder="Enter username">
-    <input type="password" id="password" placeholder="Enter password">
-    <select id="role">
-      <option value="farmer">Farmer</option>
-      <option value="admin">Admin</option>
-    </select>
-    <button onclick="login()">Login</button>
-    <p id="loginMessage" style="color:red; margin-top:10px;"></p>
-  </div>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="market-prices.html"><i class="fas fa-chart-line"></i> Prices</a></li>
+                    <li><a href="price-forecast.html"><i class="fas fa-crystal-ball"></i> Forecast</a></li>
+                    <li><a href="find-buyers.html"><i class="fas fa-users"></i> Buyers</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                    <li id="authNavItem">
+                        <a href="login.html" id="authLink"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-  <!-- DASHBOARD -->
-  <div class="container" id="dashboard">
-    <div class="top-actions">
-      <h2 id="welcomeText"></h2>
-      <div>
-        <button class="action" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
-        <button class="action" onclick="logout()">Logout</button>
-      </div>
-    </div>
-    <hr>
-
-    <!-- Weather -->
-    <div id="weatherBox">
-      <h3>🌤 Weather Insights</h3>
-      <p id="weatherText">Loading...</p>
-    </div>
-
-    <!-- Summary -->
-    <section id="summary">
-      <div class="card"><h3>Total Records</h3><p id="totalRecords">0</p></div>
-      <div class="card"><h3>Average Maize (ZMW)</h3><p id="avgMaize">0</p></div>
-      <div class="card"><h3>Average Tomatoes (ZMW)</h3><p id="avgTomato">0</p></div>
-      <div class="card"><h3>Total Markets</h3><p id="totalMarkets">0</p></div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Cloud-Based Market Platform for Zambian Farmers</h1>
+            <p>Get real-time commodity prices, AI-powered price forecasts, and connect directly with buyers. Access via Web, USSD, or SMS.</p>
+            <div class="hero-cta">
+                <a href="#features" class="btn btn-outline">
+                    <i class="fas fa-rocket"></i> GET STARTED
+                </a>
+                <a href="login.html" class="btn btn-outline" id="heroLoginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
     </section>
 
-    <!-- Controls -->
-    <div id="controls">
-      <input type="text" id="commodity" placeholder="Commodity (e.g., Maize)">
-      <select id="market">
-        <option value="">All Markets</option>
-        <option value="Lusaka Central">Lusaka Central</option>
-        <option value="Kabwe Main">Kabwe Main</option>
-        <option value="Ndola Market">Ndola Market</option>
-      </select>
-      <button class="action" onclick="loadPrices()">Load Data</button>
-      <button class="action" onclick="showForecast()">Forecast</button>
-      <button class="action" onclick="compareMarkets()">Compare Markets</button>
-      <button class="action" onclick="downloadExcel()">Export Excel</button>
-      <button class="action" onclick="sendSMS()">Send SMS Alert</button>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose FarmConnect?</h2>
+                <p>Empowering Zambian farmers with technology-driven market solutions</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Real-Time Data</h3>
+                    <p>Access up-to-date market prices from all major Zambian markets. Prices updated every 30 minutes from verified sources.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-crystal-ball"></i>
+                    </div>
+                    <h3>AI Price Forecasts</h3>
+                    <p>Intelligent price predictions using historical data and market trends. Plan your sales for maximum profit.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Direct Buyer Network</h3>
+                    <p>Connect directly with verified buyers and agricultural traders.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access Methods -->
+    <section class="access-methods">
+        <div class="container">
+            <div class="section-title">
+                <h2>Multiple Ways to Access</h2>
+                <p>Designed for all farmers - with or without smartphones</p>
+            </div>
+            
+            <div class="access-grid">
+                <div class="access-card">
+                    <div class="access-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Web Dashboard</h3>
+                    <p>Full-featured dashboard with charts, forecasts, and buyer connections. Access from any computer or smartphone.</p>
+                    <div class="access-code">http://127.0.0.1:5000</div>
+                    <button class="btn-demo" onclick="window.location.href='market-prices.html'">
+                        <i class="fas fa-eye"></i> View Live Demo
+                    </button>
+                </div>
+                
+                <div class="access-card">
+                    <div class="access-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>USSD Access</h3>
+                    <p>Works on any mobile phone. No internet required. Dial the code to get instant market prices.</p>
+                    <div class="access-code">*123#</div>
+                    <button class="btn-demo" onclick="tryUSSD()">
+                        <i class="fas fa-play"></i> Try Demo
+                    </button>
+                </div>
+                
+                <div class="access-card">
+                    <div class="access-icon">
+                        <i class="fas fa-sms"></i>
+                    </div>
+                    <h3>SMS Service</h3>
+                    <p>Get price alerts and market updates via SMS. Perfect for basic phones in rural areas.</p>
+                    <div class="access-code">PRICE to 45678</div>
+                    <button class="btn-demo" onclick="trySMS()">
+                        <i class="fas fa-sms"></i> Try Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Zambian Commodities -->
+    <section class="commodities">
+        <div class="container">
+            <div class="section-title">
+                <h2>Zambian Commodities Covered</h2>
+                <p>Real-time prices for major agricultural products in Zambia</p>
+            </div>
+            <div class="commodities-grid">
+                <span class="commodity-tag">
+                    <i class="fas fa-seedling"></i> Maize
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-apple-alt"></i> Tomatoes
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-seedling"></i> Beans
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-wheat-alt"></i> Rice
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-pepper-hot"></i> Groundnuts
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-carrot"></i> Onions
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-seedling"></i> Potatoes
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-seedling"></i> Sweet Potatoes
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-hamburger"></i> Beef
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-drumstick-bite"></i> Chicken
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-fish"></i> Fish
+                </span>
+                <span class="commodity-tag">
+                    <i class="fas fa-egg"></i> Eggs
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="market-count">48</div>
+                    <div class="stat-label">Zambian Markets</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="commodity-count">24</div>
+                    <div class="stat-label">Commodities</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="user-count">150+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Access Methods</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Price Ticker -->
+    <div class="live-ticker" id="liveTicker">
+        <div class="container ticker-container">
+            <div class="ticker-label">
+                <i class="fas fa-bolt"></i> Live Prices:
+            </div>
+            <div class="ticker-content">
+                <div class="ticker-items" id="tickerItems">
+                    <!-- Ticker items will be populated by JavaScript -->
+                    <div class="ticker-item">
+                        <span class="ticker-commodity">Maize:</span>
+                        <span class="ticker-price">ZMW 120.50</span>
+                        <span class="ticker-market">Lusaka</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-commodity">Tomatoes:</span>
+                        <span class="ticker-price">ZMW 85.25</span>
+                        <span class="ticker-market">Kabwe</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-commodity">Beans:</span>
+                        <span class="ticker-price">ZMW 175.30</span>
+                        <span class="ticker-market">Ndola</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-commodity">Groundnuts:</span>
+                        <span class="ticker-price">ZMW 190.00</span>
+                        <span class="ticker-market">Livingstone</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <canvas id="chartCanvas" height="100"></canvas>
-    <canvas id="forecastChart" height="100"></canvas>
-    <canvas id="comparisonChart" height="100"></canvas>
+    <!-- Final CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Get Started?</h2>
+            <p>Join thousands of Zambian farmers who are already accessing better prices for their produce. Create your free account today and access all features from the dashboard.</p>
+            
+            <div class="cta-buttons">
+                <a href="register.html" class="btn btn-secondary">
+                    <i class="fas fa-user-plus"></i> Create Free Account
+                </a>
+                <a href="dashboard.html" class="btn btn-outline" id="ctaDashboardBtn">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+                <a href="admin-panel.html" class="btn btn-outline" id="adminPanelBtn" style="display: none;">
+                    <i class="fas fa-cogs"></i> Admin Panel
+                </a>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
+                <i class="fas fa-lock"></i> Your data is secure and private
+            </p>
+        </div>
+    </section>
 
-    <table id="priceTable">
-      <thead>
-        <tr><th>Date</th><th>Market</th><th>Commodity</th><th>Price (ZMW)</th><th>Volume</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>FarmConnect</h3>
+                    <p style="color: #bbb; margin-bottom: 25px; line-height: 1.6;">
+                        Cloud-Based Market Information Platform for Zambian Farmers. Real-time prices, forecasts, and buyer connections.
+                    </p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="SMS">
+                            <i class="fas fa-sms"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="market-prices.html"><i class="fas fa-chart-line"></i> Market Prices</a></li>
+                        <li><a href="price-forecast.html"><i class="fas fa-crystal-ball"></i> Price Forecast</a></li>
+                        <li><a href="find-buyers.html"><i class="fas fa-users"></i> Find Buyers</a></li>
+                        <li><a href="admin-panel.html"><i class="fas fa-shield-alt"></i> Admin Login</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Access Methods</h3>
+                    <ul class="footer-links">
+                        <li><a href="dashboard.html"><i class="fas fa-globe"></i> Web Dashboard</a></li>
+                        <li><a href="#" onclick="tryUSSD()"><i class="fas fa-mobile-alt"></i> USSD: *123#</a></li>
+                        <li><a href="#" onclick="trySMS()"><i class="fas fa-sms"></i> SMS: PRICE to 45678</a></li>
+                        <li><a href="register.html"><i class="fas fa-rocket"></i> GET STARTED</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Project Info</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-university"></i> Mulungushi University</li>
+                        <li><i class="fas fa-graduation-cap"></i> ICT 431 Capstone Project</li>
+                        <li><i class="fas fa-user-graduate"></i> Daka Felix (202206453)</li>
+                        <li><i class="fas fa-chalkboard-teacher"></i> Supervisor: Mr. E Nyirenda</li>
+                        <li><i class="fas fa-server"></i> Backend Status: <span id="backend-status">Checking...</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FarmConnect - Cloud-Based Market Information Platform. All rights reserved.</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #888;">
+                    Mulungushi University - ICT 431 Capstone Project | 
+                    Student: Daka Felix (202206453) | 
+                    Supervisor: Mr. E Nyirenda | 
+                    Course: ICT 431
+                </p>
+                <p style="margin-top: 10px; font-size: 0.8rem; color: #666;">
+                    <i class="fas fa-server"></i> Backend: <span id="api-status">Checking...</span> | 
+                    <i class="fas fa-database"></i> Database: <span id="db-status">Online</span> |
+                    <i class="fas fa-clock"></i> Last Updated: <span id="last-updated">Just now</span>
+                </p>
+            </div>
+        </div>
+    </footer>
 
-    <!-- Admin -->
-    <div class="admin-panel" id="adminControls" style="display:none;">
-      <h3>⚙️ Admin Controls</h3>
-      <input type="text" id="newMarket" placeholder="Market">
-      <input type="text" id="newCommodity" placeholder="Commodity">
-      <input type="number" id="newPrice" placeholder="Price">
-      <input type="number" id="newVolume" placeholder="Volume">
-      <button class="action" onclick="addPrice()">Add Record</button>
-      <button class="action" onclick="downloadReport()">Download PDF Report</button>
-    </div>
-  </div>
+    <script>
+        // =========================================================
+        // INDEX PAGE - FIXED VERSION
+        // =========================================================
 
-  <footer>© 2025 Mulungushi University | Supervised By Mr. Nyirenda | Developed by Tech Guy</footer>
+        // API base URL
+        const API_BASE = 'http://127.0.0.1:5000/api';
 
-  <script>
-    const API_BASE = "http://127.0.0.1:5000/api";
-    let chart = null, forecastChart = null, comparisonChart = null, darkMode = false;
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMobileMenu();
+            checkAuthentication();
+            checkBackendStatus();
+            updateLiveTicker();
+        });
 
-    async function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const role = document.getElementById("role").value;
-      if (!username || !password) return alert("Enter username & password!");
-
-      document.getElementById("loginSection").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      document.getElementById("welcomeText").innerText = `Welcome ${role.toUpperCase()}, ${username}`;
-      document.getElementById("adminControls").style.display = role === "admin" ? "block" : "none";
-      loadSummary(); loadPrices(); loadWeather();
-    }
-
-    function logout() {
-      document.getElementById("dashboard").style.display = "none";
-      document.getElementById("loginSection").style.display = "block";
-    }
-
-    function toggleDarkMode() {
-      darkMode = !darkMode;
-      document.body.classList.toggle("dark", darkMode);
-    }
-
-    async function loadWeather(city="Lusaka") {
-      const res = await fetch(`${API_BASE}/weather?city=${city}`);
-      const json = await res.json();
-      if (json.status === "ok") {
-        const w = json.data;
-        document.getElementById("weatherText").innerText =
-          `${w.city}: ${w.temperature}°C, ${w.description}, Humidity ${w.humidity}%`;
-      }
-    }
-
-    async function loadSummary() {
-      const res = await fetch(`${API_BASE}/prices`);
-      const json = await res.json();
-      if (json.status !== "ok") return;
-      const data = json.data;
-      document.getElementById("totalRecords").textContent = data.length;
-      const maize = data.filter(r => r.commodity === "Maize").map(r => r.price);
-      const tomato = data.filter(r => r.commodity === "Tomatoes").map(r => r.price);
-      const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2) : 0;
-      document.getElementById("avgMaize").textContent = avg(maize);
-      document.getElementById("avgTomato").textContent = avg(tomato);
-      document.getElementById("totalMarkets").textContent = new Set(data.map(r=>r.market)).size;
-    }
-
-    async function loadPrices() {
-      const commodity = document.getElementById("commodity").value || "Maize";
-      const market = document.getElementById("market").value;
-      const res = await fetch(`${API_BASE}/commodity-timeseries?commodity=${commodity}${market ? "&market="+market : ""}`);
-      const json = await res.json();
-      const tbody = document.querySelector("#priceTable tbody");
-      tbody.innerHTML = "";
-      const dates = [], prices = [];
-      json.data.forEach(r => {
-        tbody.innerHTML += `<tr><td>${r.date}</td><td>${r.market}</td><td>${commodity}</td><td>${r.price}</td><td>${r.volume||'-'}</td></tr>`;
-        dates.push(r.date); prices.push(r.price);
-      });
-      drawChart(dates, prices, commodity);
-    }
-
-    async function showForecast() {
-      const commodity = document.getElementById("commodity").value || "Maize";
-      const market = document.getElementById("market").value;
-      const res = await fetch(`${API_BASE}/forecast?commodity=${commodity}&market=${market}&days=3`);
-      const json = await res.json();
-      if (json.status !== "ok") return alert("No forecast data.");
-      const preds = json.predictions;
-      const labels = preds.map(p => p.date);
-      const values = preds.map(p => p.predicted_price);
-      if (forecastChart) forecastChart.destroy();
-      forecastChart = new Chart(document.getElementById("forecastChart"), {
-        type: "bar",
-        data: { labels, datasets: [{ label: `Forecast (${commodity})`, data: values, backgroundColor: "#ff9800" }] }
-      });
-    }
-
-    async function compareMarkets() {
-      const commodity = document.getElementById("commodity").value || "Maize";
-      const res = await fetch(`${API_BASE}/market-comparison?commodity=${commodity}`);
-      const json = await res.json();
-      const data = json.data;
-      const labels = data["Lusaka Central"].map(r => r.date);
-      if (comparisonChart) comparisonChart.destroy();
-      comparisonChart = new Chart(document.getElementById("comparisonChart"), {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            { label: "Lusaka Central", data: data["Lusaka Central"].map(r=>r.price), borderColor: "#1e88e5" },
-            { label: "Kabwe Main", data: data["Kabwe Main"].map(r=>r.price), borderColor: "#43a047" },
-            { label: "Ndola Market", data: data["Ndola Market"].map(r=>r.price), borderColor: "#fbc02d" }
-          ]
+        // Initialize mobile menu
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            
+            if (mobileMenuBtn && mainNav) {
+                mobileMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mainNav.classList.toggle('active');
+                    this.innerHTML = mainNav.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+            }
+            
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        mainNav.classList.remove('active');
+                        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                });
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth <= 768 && 
+                    mainNav.classList.contains('active') &&
+                    !mainNav.contains(event.target) &&
+                    !mobileMenuBtn.contains(event.target)) {
+                    mainNav.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
         }
-      });
-    }
 
-    async function addPrice() {
-      const body = {
-        market: document.getElementById("newMarket").value,
-        commodity: document.getElementById("newCommodity").value,
-        price: document.getElementById("newPrice").value,
-        volume: document.getElementById("newVolume").value
-      };
-      const res = await fetch(`${API_BASE}/add-price`, {
-        method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body)
-      });
-      const json = await res.json();
-      alert(json.message || "Added!");
-      loadSummary(); loadPrices();
-    }
+        // Check authentication status
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            
+            const authLink = document.getElementById('authLink');
+            const authNavItem = document.getElementById('authNavItem');
+            const heroLoginBtn = document.getElementById('heroLoginBtn');
+            const ctaDashboardBtn = document.getElementById('ctaDashboardBtn');
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
+            
+            if (token && userData.username) {
+                // User is logged in
+                if (authLink) {
+                    authLink.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                    authLink.href = '#';
+                    authLink.onclick = logoutUser;
+                }
+                
+                if (heroLoginBtn) {
+                    heroLoginBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i> Dashboard';
+                    heroLoginBtn.href = 'dashboard.html';
+                }
+                
+                if (ctaDashboardBtn) {
+                    ctaDashboardBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i> Go to Dashboard';
+                    ctaDashboardBtn.href = 'dashboard.html';
+                }
+                
+                // Show admin panel for admin users
+                if (userData.role === 'admin' && adminPanelBtn) {
+                    adminPanelBtn.style.display = 'inline-flex';
+                }
+                
+                console.log(`✅ User logged in: ${userData.username} (${userData.role})`);
+            } else {
+                // User is not logged in
+                if (authLink) {
+                    authLink.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                    authLink.href = 'login.html';
+                    authLink.onclick = null;
+                }
+                
+                if (ctaDashboardBtn) {
+                    ctaDashboardBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Dashboard';
+                    ctaDashboardBtn.href = 'login.html';
+                }
+                
+                if (adminPanelBtn) {
+                    adminPanelBtn.style.display = 'none';
+                }
+            }
+        }
 
-    function downloadReport() { window.open(`${API_BASE}/report`, "_blank"); }
-    function downloadExcel() { window.open(`${API_BASE}/export-excel`, "_blank"); }
-    async function sendSMS() {
-      const to = prompt("Enter phone number (e.g., +26097XXXXXXX):");
-      if (!to) return;
-      await fetch(`${API_BASE}/send-sms`, {
-        method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({to, message: "Market update: prices updated on platform."})
-      });
-      alert("SMS alert sent (if Twilio configured).");
-    }
+        // Logout user
+        function logoutUser(e) {
+            e.preventDefault();
+            
+            // Clear localStorage
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            
+            // Show logout message
+            alert('Logged out successfully!');
+            
+            // Refresh page
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
 
-    function drawChart(dates, prices, label) {
-      const ctx = document.getElementById("chartCanvas");
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: "line",
-        data: { labels: dates, datasets: [{ label, data: prices, borderColor: "#006400", fill: true, backgroundColor: "rgba(0,128,0,0.1)" }] }
-      });
-    }
-  </script>
+        // Check backend status
+        async function checkBackendStatus() {
+            const statusElements = {
+                'backend-status': document.getElementById('backend-status'),
+                'api-status': document.getElementById('api-status'),
+                'db-status': document.getElementById('db-status'),
+                'last-updated': document.getElementById('last-updated')
+            };
+            
+            // Set initial status to checking
+            Object.values(statusElements).forEach(el => {
+                if (el) {
+                    el.textContent = 'Checking...';
+                    el.className = '';
+                }
+            });
+            
+            try {
+                const response = await fetch(`${API_BASE}/status`, { 
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.status === 'online') {
+                        // Update status indicators
+                        updateStatusElement(statusElements['backend-status'], '✅ Online', 'status-online');
+                        updateStatusElement(statusElements['api-status'], '✅ Online', 'status-online');
+                        updateStatusElement(statusElements['db-status'], '✅ Online', 'status-online');
+                        
+                        // Update stats with real data
+                        if (data.zambian_data) {
+                            const stats = data.zambian_data;
+                            document.getElementById('market-count').textContent = stats.markets_monitored || 48;
+                            document.getElementById('commodity-count').textContent = stats.commodities_tracked || 24;
+                            document.getElementById('user-count').textContent = stats.active_users ? `${stats.active_users}+` : '150+';
+                        }
+                        
+                        // Update last updated time
+                        const now = new Date();
+                        updateStatusElement(statusElements['last-updated'], now.toLocaleTimeString(), '');
+                        
+                        console.log('✅ Backend connected successfully');
+                        
+                        // Update live ticker with real data
+                        updateTickerWithRealData();
+                        
+                    } else {
+                        throw new Error('Backend status not online');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.log('⚠️ Backend not responding:', error.message);
+                
+                // Update status indicators to offline
+                updateStatusElement(statusElements['backend-status'], '⚠️ Offline', 'status-offline');
+                updateStatusElement(statusElements['api-status'], '⚠️ Offline', 'status-offline');
+                updateStatusElement(statusElements['db-status'], '⚠️ Offline', 'status-offline');
+                
+                // Update last updated time
+                const now = new Date();
+                updateStatusElement(statusElements['last-updated'], now.toLocaleTimeString(), 'status-offline');
+                
+                // Show warning in console but don't alert user
+                console.log('Using default data for stats');
+            }
+        }
+
+        // Helper function to update status elements
+        function updateStatusElement(element, text, className) {
+            if (element) {
+                element.textContent = text;
+                element.className = className;
+            }
+        }
+
+        // Update live ticker with real data
+        async function updateTickerWithRealData() {
+            try {
+                const response = await fetch(`${API_BASE}/prices/real?limit=4`);
+                const data = await response.json();
+                
+                if (data.prices && data.prices.length > 0) {
+                    const tickerItems = document.getElementById('tickerItems');
+                    if (!tickerItems) return;
+                    
+                    tickerItems.innerHTML = '';
+                    
+                    // Add each price to ticker
+                    data.prices.forEach(price => {
+                        const tickerItem = document.createElement('div');
+                        tickerItem.className = 'ticker-item';
+                        tickerItem.innerHTML = `
+                            <span class="ticker-commodity">${price.commodity}:</span>
+                            <span class="ticker-price">ZMW ${price.price}</span>
+                            <span class="ticker-market">${price.market}</span>
+                        `;
+                        tickerItems.appendChild(tickerItem);
+                    });
+                    
+                    // Duplicate items for seamless scrolling
+                    data.prices.forEach(price => {
+                        const tickerItem = document.createElement('div');
+                        tickerItem.className = 'ticker-item';
+                        tickerItem.innerHTML = `
+                            <span class="ticker-commodity">${price.commodity}:</span>
+                            <span class="ticker-price">ZMW ${price.price}</span>
+                            <span class="ticker-market">${price.market}</span>
+                        `;
+                        tickerItems.appendChild(tickerItem);
+                    });
+                }
+            } catch (error) {
+                console.log('Using default ticker data');
+            }
+        }
+
+        // Update live ticker animation
+        function updateLiveTicker() {
+            const ticker = document.getElementById('liveTicker');
+            if (!ticker) return;
+            
+            // Show/hide ticker based on scroll
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    ticker.style.bottom = '0';
+                } else {
+                    ticker.style.bottom = '-100px';
+                }
+            });
+            
+            // Force initial position
+            ticker.style.bottom = '0';
+        }
+
+        // Demo functions for USSD and SMS
+        function tryUSSD() {
+            alert('USSD Demo:\n\nDial *123# on your mobile phone to:\n1. Check market prices\n2. Get price forecasts\n3. Find buyers\n4. Get weather information\n\n(Note: This is a demo. In production, this would work on any mobile phone.)');
+        }
+
+        function trySMS() {
+            alert('SMS Demo:\n\nSend "PRICE" to 45678 to:\n• Get latest commodity prices\n• Receive price alerts\n• Get market updates\n\n(Note: This is a demo. In production, this would work on any mobile phone.)');
+        }
+
+        // Auto-refresh backend status every 60 seconds
+        setInterval(checkBackendStatus, 60000);
+
+        // Check authentication on page load
+        window.addEventListener('load', function() {
+            setTimeout(checkAuthentication, 100);
+        });
+    </script>
 </body>
 </html>

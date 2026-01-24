@@ -1,99 +1,797 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Farm Market Platform — Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-    body {
-      background: linear-gradient(135deg, #006400, #008000);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-    }
-    .login-box {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 40px 50px;
-      width: 350px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      text-align: center;
-      backdrop-filter: blur(10px);
-    }
-    h2 { font-weight: 600; margin-bottom: 25px; }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 6px;
-      outline: none;
-      font-size: 1rem;
-    }
-    input::placeholder { color: #555; }
-    select { color: #333; }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      background: gold;
-      color: #006400;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: 0.3s;
-    }
-    button:hover { background: #fff176; }
-    .error { color: #ffdddd; margin-top: 10px; font-size: 0.9rem; }
-    footer {
-      position: absolute;
-      bottom: 15px;
-      text-align: center;
-      width: 100%;
-      color: #fff;
-      font-size: 0.85rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FarmConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #1f6b43;
+            --primary-light: #3CB371;
+            --secondary: #FFA500;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --transition: all 0.3s ease;
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background-color: white; 
+            box-shadow: var(--shadow); 
+            z-index: 1000; 
+            padding: 15px 0;
+        }
+        .header-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none;
+        }
+        .logo i { margin-right: 10px; }
+        
+        /* Navigation */
+        nav ul { 
+            display: flex; 
+            list-style: none; 
+            gap: 20px;
+        }
+        nav a { 
+            font-weight: 600; 
+            transition: var(--transition); 
+            position: relative; 
+            text-decoration: none;
+            color: var(--dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+        }
+        nav a:hover,
+        nav a.active { 
+            color: var(--primary); 
+            background: rgba(46, 139, 87, 0.1);
+        }
+        
+        .mobile-menu-btn { 
+            display: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--dark); 
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        /* Login Container */
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+            overflow: hidden;
+            min-height: 600px;
+            margin-top: 80px;
+        }
+
+        @media (max-width: 992px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                margin-top: 100px;
+            }
+        }
+
+        /* Left Panel */
+        .login-left {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .login-left p {
+            opacity: 0.9;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .features-list i {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .access-methods {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .access-method {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .access-method i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .access-method span {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Right Panel */
+        .login-right {
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-right h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .login-right > p {
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .input-with-icon input {
+            padding-left: 45px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-check input {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-check label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Button */
+        .btn { 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: var(--primary); 
+            color: white; 
+            padding: 14px 28px; 
+            border-radius: var(--radius); 
+            font-weight: 600; 
+            transition: var(--transition); 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1rem;
+            text-decoration: none;
+            width: 100%;
+        }
+        .btn:hover { 
+            background-color: var(--primary-dark); 
+            transform: translateY(-3px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .btn-secondary { 
+            background-color: var(--secondary); 
+        }
+        .btn-secondary:hover { 
+            background-color: #e69500; 
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--gray);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--light-gray);
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Demo Credentials */
+        .demo-credentials {
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .demo-credentials h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-credentials ul {
+            list-style: none;
+            padding-left: 5px;
+        }
+
+        .demo-credentials li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .demo-credentials .role {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 70px;
+        }
+
+        .demo-credentials .credentials {
+            color: var(--gray);
+        }
+
+        /* Links */
+        .login-links {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .login-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer { 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%; 
+            background-color: #222; 
+            color: #ddd; 
+            padding: 15px 0;
+            text-align: center; 
+            z-index: 100;
+        }
+        .footer-container { 
+            padding: 0 20px;
+        }
+        .footer-bottom { 
+            color: #aaa; 
+            font-size: 0.85rem; 
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            nav {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: white;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+                padding: 80px 25px 25px;
+                transition: var(--transition);
+                z-index: 999;
+                overflow-y: auto;
+            }
+            nav.active {
+                left: 0;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+            nav a {
+                padding: 12px 15px;
+                width: 100%;
+            }
+            .login-left,
+            .login-right {
+                padding: 40px 25px;
+            }
+            .login-left h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                min-height: auto;
+            }
+            .access-methods {
+                flex-direction: column;
+            }
+            .access-method {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>🌾 Farm Market Login</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <select id="role">
-      <option value="farmer">Farmer</option>
-      <option value="admin">Admin</option>
-    </select>
-    <button onclick="login()">Login</button>
-    <p id="msg" class="error"></p>
-  </div>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-tractor"></i>
+                <span>FarmConnect</span>
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="market-prices.html">Market Prices</a></li>
+                    <li><a href="price-forecast.html">Price Forecast</a></li>
+                    <li><a href="find-buyers.html">Find Buyers</a></li>
+                    <li><a href="login.html" class="active">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-  <footer>© 2025 Mulungushi University | Supervised by Mr. E Nyirenda.</footer>
+    <!-- Login Container -->
+    <div class="container">
+        <div class="login-container">
+            <!-- Left Panel -->
+            <div class="login-left">
+                <h1>Welcome to FarmConnect</h1>
+                <p>Access real-time market prices, price forecasts, and connect with buyers across Zambia.</p>
+                
+                <ul class="features-list">
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-time commodity prices from Zambian markets</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-crystal-ball"></i>
+                        <span>AI-powered price forecasting and market trends</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-users"></i>
+                        <span>Direct connections with verified agricultural buyers</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Access via Web, USSD (*123#), or SMS</span>
+                    </li>
+                </ul>
 
-  <script>
-    function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const role = document.getElementById('role').value;
+                <div class="access-methods">
+                    <div class="access-method">
+                        <i class="fas fa-globe"></i>
+                        <span>Web Dashboard</span>
+                    </div>
+                    <div class="access-method">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>USSD: *123#</span>
+                    </div>
+                    <div class="access-method">
+                        <i class="fas fa-sms"></i>
+                        <span>SMS: PRICE to 45678</span>
+                    </div>
+                </div>
+            </div>
 
-      if (!username || !password) {
-        document.getElementById('msg').innerText = "⚠️ Enter both username and password!";
-        return;
-      }
+            <!-- Right Panel -->
+            <div class="login-right">
+                <h2>Login to Your Account</h2>
+                <p>Enter your credentials to access the platform</p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <a href="dashboard.html" class="btn btn-outline" id="demoLoginBtn">
+                    <i class="fas fa-eye"></i> Try Demo Dashboard
+                </a>
+                
+                <div class="demo-credentials">
+                    <h4><i class="fas fa-key"></i> Demo Credentials</h4>
+                    <ul>
+                        <li>
+                            <span class="role">Farmer:</span>
+                            <span class="credentials">farmer1 / farmer123</span>
+                        </li>
+                        <li>
+                            <span class="role">Trader:</span>
+                            <span class="credentials">trader1 / trader123</span>
+                        </li>
+                        <li>
+                            <span class="role">Admin:</span>
+                            <span class="credentials">admin1 / admin123</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="login-links">
+                    <p>Don't have an account? <a href="register.html">Register here</a></p>
+                    <p><a href="#" id="forgotPassword">Forgot your password?</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      // --- Simulated authentication ---
-      if (role === 'admin') {
-        window.location.href = "admin.html";
-      } else {
-        window.location.href = "index.html";
-      }
-    }
-  </script>
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 FarmConnect - Mulungushi University Capstone Project</p>
+                <p>Student: Daka Felix (202206453) | Course: ICT 431 | Supervisor: Mr. E Nyirenda</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            
+            if (mobileMenuBtn && mainNav) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                    this.innerHTML = mainNav.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+            }
+
+            // Login form submission
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const demoLoginBtn = document.getElementById('demoLoginBtn');
+            const forgotPasswordLink = document.getElementById('forgotPassword');
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('username').value.trim();
+                    const password = document.getElementById('password').value;
+                    
+                    if (!username || !password) {
+                        showNotification('Please enter both username and password', 'error');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const originalText = loginBtn.innerHTML;
+                    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                    loginBtn.disabled = true;
+                    
+                    // API call to login
+                    fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Login failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Store token in localStorage
+                        if (data.token) {
+                            localStorage.setItem('authToken', data.token);
+                            localStorage.setItem('userData', JSON.stringify(data.user));
+                            
+                            showNotification('Login successful! Redirecting to dashboard...', 'success');
+                            
+                            // Redirect to dashboard after 1.5 seconds
+                            setTimeout(() => {
+                                window.location.href = 'dashboard.html';
+                            }, 1500);
+                        } else {
+                            throw new Error('No token received');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Login error:', error);
+                        showNotification('Invalid username or password. Try using demo credentials.', 'error');
+                        
+                        // Restore button
+                        loginBtn.innerHTML = originalText;
+                        loginBtn.disabled = false;
+                    });
+                });
+            }
+
+            // Demo login button
+            if (demoLoginBtn) {
+                demoLoginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Auto-fill demo farmer credentials
+                    document.getElementById('username').value = 'farmer1';
+                    document.getElementById('password').value = 'farmer123';
+                    
+                    // Show notification
+                    showNotification('Demo credentials filled. Click Login to continue.', 'info');
+                });
+            }
+
+            // Forgot password link
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showNotification('Password reset feature coming soon. Contact support for assistance.', 'info');
+                });
+            }
+
+            // Check if already logged in
+            const token = localStorage.getItem('authToken');
+            if (token && window.location.pathname.includes('login.html')) {
+                showNotification('You are already logged in. Redirecting to dashboard...', 'info');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            }
+        });
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            // Remove existing notification if any
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+                font-size: 0.95rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add CSS for animation
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 4000);
+        }
+    </script>
 </body>
 </html>

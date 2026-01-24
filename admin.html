@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - FarmConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #1f6b43;
+            --secondary: #FFA500;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --transition: all 0.3s ease;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.danger { border-color: var(--danger); }
+        .stat-card.success { border-color: var(--success); }
+        .stat-card.warning { border-color: var(--warning); }
+        .stat-card.info { border-color: var(--info); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            background: var(--light);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--light);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            background: white;
+            transition: var(--transition);
+        }
+
+        .data-table tr:hover td {
+            background-color: rgba(46, 139, 87, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: black;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-success { background: var(--success); }
+        .badge-warning { background: var(--warning); color: black; }
+        .badge-danger { background: var(--danger); }
+        .badge-info { background: var(--info); }
+        .badge-primary { background: var(--primary); }
+
+        /* Charts */
+        .chart-container {
+            height: 300px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Search and Filters */
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success);
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--danger);
+            color: #721c24;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-user-shield"></i>
+            FarmConnect Admin Panel
+            <span id="adminRole" class="badge badge-warning" style="font-size: 0.8rem;">Admin</span>
+        </h1>
+        
+        <div id="alertContainer"></div>
+        
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Loading admin data...</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div id="statsGrid" class="stats-grid"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('users')">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="tab-btn" onclick="switchTab('prices')">
+                <i class="fas fa-money-bill-wave"></i> Prices
+            </button>
+            <button class="tab-btn" onclick="switchTab('buyers')">
+                <i class="fas fa-user-tie"></i> Buyers
+            </button>
+            <button class="tab-btn" onclick="switchTab('activity')">
+                <i class="fas fa-history"></i> Activity
+            </button>
+            <button class="tab-btn" onclick="switchTab('archived')">
+                <i class="fas fa-archive"></i> Archived
+            </button>
+        </div>
+
+        <!-- Users Tab -->
+        <div class="tab-content active" id="usersTab">
+            <h2><i class="fas fa-users"></i> User Management</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="userSearch" placeholder="Search users...">
+                <select class="search-input" id="userRoleFilter" style="max-width: 200px;">
+                    <option value="all">All Roles</option>
+                    <option value="farmer">Farmers</option>
+                    <option value="trader">Traders</option>
+                    <option value="admin">Admins</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadUsers()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <table class="data-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Location</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Prices Tab -->
+        <div class="tab-content" id="pricesTab">
+            <h2><i class="fas fa-money-bill-wave"></i> Price Management</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="priceSearch" placeholder="Search prices...">
+                <select class="search-input" id="priceCommodityFilter" style="max-width: 200px;">
+                    <option value="all">All Commodities</option>
+                    <option value="Maize">Maize</option>
+                    <option value="Tomatoes">Tomatoes</option>
+                    <option value="Beans">Beans</option>
+                    <option value="Groundnuts">Groundnuts</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadPrices()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn btn-success" onclick="showAddPriceModal()">
+                    <i class="fas fa-plus"></i> Add Price
+                </button>
+            </div>
+            <table class="data-table" id="pricesTable">
+                <thead>
+                    <tr>
+                        <th>Commodity</th>
+                        <th>Market</th>
+                        <th>Price (ZMW)</th>
+                        <th>Volume</th>
+                        <th>Added By</th>
+                        <th>Date</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pricesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Buyers Tab -->
+        <div class="tab-content" id="buyersTab">
+            <h2><i class="fas fa-user-tie"></i> Buyer Management</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="buyerSearch" placeholder="Search buyers...">
+                <select class="search-input" id="buyerCommodityFilter" style="max-width: 200px;">
+                    <option value="all">All Commodities</option>
+                    <option value="Maize">Maize</option>
+                    <option value="Tomatoes">Tomatoes</option>
+                    <option value="Beans">Beans</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadBuyers()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn btn-success" onclick="showAddBuyerModal()">
+                    <i class="fas fa-plus"></i> Add Buyer
+                </button>
+            </div>
+            <table class="data-table" id="buyersTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Commodity</th>
+                        <th>Location</th>
+                        <th>Max Price</th>
+                        <th>Min Volume</th>
+                        <th>Phone</th>
+                        <th>Rating</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="buyersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Activity Tab -->
+        <div class="tab-content" id="activityTab">
+            <h2><i class="fas fa-history"></i> System Activity</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="activitySearch" placeholder="Search activity...">
+                <select class="search-input" id="activityTypeFilter" style="max-width: 200px;">
+                    <option value="all">All Activities</option>
+                    <option value="admin">Admin Actions</option>
+                    <option value="user">User Actions</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadActivityLogs()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <table class="data-table" id="activityTable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody id="activityTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Archived Tab -->
+        <div class="tab-content" id="archivedTab">
+            <h2><i class="fas fa-archive"></i> Archived Items</h2>
+            <div class="search-box">
+                <select class="search-input" id="archiveTypeFilter" style="max-width: 200px;">
+                    <option value="users">Archived Users</option>
+                    <option value="prices">Archived Prices</option>
+                    <option value="buyers">Archived Buyers</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadArchived()">
+                    <i class="fas fa-sync-alt"></i> Load
+                </button>
+            </div>
+            <table class="data-table" id="archivedTable">
+                <thead id="archivedTableHead"></thead>
+                <tbody id="archivedTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editPriceModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-edit"></i> Edit Price</h3>
+            <form id="editPriceForm" onsubmit="updatePrice(event)">
+                <input type="hidden" id="editPriceId">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Commodity</label>
+                    <input type="text" class="search-input" id="editCommodity" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Market</label>
+                    <input type="text" class="search-input" id="editMarket" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Price (ZMW)</label>
+                    <input type="number" class="search-input" id="editPrice" step="0.01" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Volume</label>
+                    <input type="number" class="search-input" id="editVolume" step="1">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="editVerified">
+                        <span>Verified Price</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Price</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addPriceModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-plus"></i> Add New Price</h3>
+            <form id="addPriceForm" onsubmit="addPrice(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Commodity</label>
+                    <select class="search-input" id="addCommodity" required>
+                        <option value="">Select commodity</option>
+                        <option value="Maize">Maize</option>
+                        <option value="Tomatoes">Tomatoes</option>
+                        <option value="Beans">Beans</option>
+                        <option value="Groundnuts">Groundnuts</option>
+                        <option value="Rice">Rice</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Market</label>
+                    <select class="search-input" id="addMarket" required>
+                        <option value="">Select market</option>
+                        <option value="Lusaka Central">Lusaka Central</option>
+                        <option value="Kabwe Main">Kabwe Main</option>
+                        <option value="Ndola Market">Ndola Market</option>
+                        <option value="Kitwe Main">Kitwe Main</option>
+                        <option value="Livingstone">Livingstone</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Price (ZMW)</label>
+                    <input type="number" class="search-input" id="addPrice" step="0.01" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Volume (kg)</label>
+                    <input type="number" class="search-input" id="addVolume" step="1">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="addVerified">
+                        <span>Mark as verified</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Price</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addBuyerModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-plus"></i> Add New Buyer</h3>
+            <form id="addBuyerForm" onsubmit="addBuyer(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Buyer Name</label>
+                    <input type="text" class="search-input" id="addBuyerName" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Commodity</label>
+                    <select class="search-input" id="addBuyerCommodity" required>
+                        <option value="">Select commodity</option>
+                        <option value="Maize">Maize</option>
+                        <option value="Tomatoes">Tomatoes</option>
+                        <option value="Beans">Beans</option>
+                        <option value="Groundnuts">Groundnuts</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Location</label>
+                    <input type="text" class="search-input" id="addBuyerLocation" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Phone Number</label>
+                    <input type="tel" class="search-input" id="addBuyerPhone" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Max Price (ZMW)</label>
+                    <input type="number" class="search-input" id="addBuyerMaxPrice" step="0.01">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Min Volume (kg)</label>
+                    <input type="number" class="search-input" id="addBuyerMinVolume" step="1">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="addBuyerVerified">
+                        <span>Mark as verified buyer</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Buyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000/api';
+        let currentUser = null;
+        let currentAction = null;
+        let currentTargetId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAccess();
+            loadAdminStats();
+            loadUsers();
+        });
+
+        // Check if user is admin
+        function checkAdminAccess() {
+            const userData = localStorage.getItem('farmconnect_user');
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(userData);
+                if (currentUser.user.role !== 'admin') {
+                    showAlert('Admin access required', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                }
+            } catch (error) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Activate button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.textContent.includes(tabName.charAt(0).toUpperCase() + tabName.slice(1).replace('Tab', ''))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Load data for the tab
+            switch(tabName) {
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'prices':
+                    loadPrices();
+                    break;
+                case 'buyers':
+                    loadBuyers();
+                    break;
+                case 'activity':
+                    loadActivityLogs();
+                    break;
+                case 'archived':
+                    loadArchived();
+                    break;
+            }
+        }
+
+        // Load admin statistics
+        async function loadAdminStats() {
+            if (!currentUser || !currentUser.token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    displayStats(stats);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function displayStats(stats) {
+            const container = document.getElementById('statsGrid');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
+                    <div class="stat-value">${stats.users.total}</div>
+                    <div>${stats.users.farmers} farmers • ${stats.users.traders} traders</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label"><i class="fas fa-money-bill-wave"></i> Prices</div>
+                    <div class="stat-value">${stats.prices.total}</div>
+                    <div>${stats.prices.verified} verified (${stats.prices.verifiedPercent}%)</div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-label"><i class="fas fa-user-tie"></i> Buyers</div>
+                    <div class="stat-value">${stats.buyers.total}</div>
+                    <div>${stats.buyers.verified} verified (${stats.buyers.verifiedPercent}%)</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label"><i class="fas fa-chart-line"></i> Activity</div>
+                    <div class="stat-value">${stats.activity.today}</div>
+                    <div>${stats.activity.totalAlerts} active alerts</div>
+                </div>
+            `;
+        }
+
+        // Load users
+        async function loadUsers() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsers(users);
+                } else {
+                    throw new Error('Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showAlert('Failed to load users', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const roleFilter = document.getElementById('userRoleFilter').value;
+
+            const filteredUsers = users.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchTerm) || 
+                                     user.username.toLowerCase().includes(searchTerm) ||
+                                     user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+                return matchesSearch && matchesRole;
+            });
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-user-slash" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                const joinedDate = new Date(user.created_at).toLocaleDateString();
+                
+                row.innerHTML = `
+                    <td><strong>${user.name}</strong></td>
+                    <td>${user.username}</td>
+                    <td><span class="badge ${user.role === 'admin' ? 'badge-danger' : user.role === 'farmer' ? 'badge-success' : 'badge-warning'}">${user.role}</span></td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${user.location || 'N/A'}</td>
+                    <td>${joinedDate}</td>
+                    <td><span class="badge ${user.status === 'active' ? 'badge-success' : 'badge-danger'}">${user.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-danger btn-small" onclick="confirmAction('deleteUser', '${user.user_id}', 'Delete user ${user.name}?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load prices
+        async function loadPrices() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/prices?limit=100`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const prices = await response.json();
+                    displayPrices(prices);
+                } else {
+                    throw new Error('Failed to load prices');
+                }
+            } catch (error) {
+                console.error('Error loading prices:', error);
+                showAlert('Failed to load prices', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayPrices(prices) {
+            const tbody = document.getElementById('pricesTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const searchTerm = document.getElementById('priceSearch').value.toLowerCase();
+            const commodityFilter = document.getElementById('priceCommodityFilter').value;
+
+            const filteredPrices = prices.filter(price => {
+                const matchesSearch = price.commodity.toLowerCase().includes(searchTerm) || 
+                                     price.market.toLowerCase().includes(searchTerm) ||
+                                     price.added_by.toLowerCase().includes(searchTerm);
+                const matchesCommodity = commodityFilter === 'all' || price.commodity === commodityFilter;
+                return matchesSearch && matchesCommodity;
+            });
+
+            if (filteredPrices.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No prices found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredPrices.forEach(price => {
+                const row = document.createElement('tr');
+                const date = new Date(price.recorded_at).toLocaleDateString();
+                
+                row.innerHTML = `
+                    <td><strong>${price.commodity}</strong></td>
+                    <td>${price.market}</td>
+                    <td>ZMW ${price.price.toFixed(2)}</td>
+                    <td>${price.volume ? price.volume + ' kg' : 'N/A'}</td>
+                    <td>${price.added_by}</td>
+                    <td>${date}</td>
+                    <td>
+                        <span class="badge ${price.verified ? 'badge-success' : 'badge-warning'}">
+                            ${price.verified ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-small" onclick="editPrice(${price.id}, '${price.commodity}', '${price.market}', ${price.price}, ${price.volume || 0}, ${price.verified})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="confirmAction('deletePrice', ${price.id}, 'Delete price for ${price.commodity} at ${price.market}?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load buyers
+        async function loadBuyers() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/buyers`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const buyers = await response.json();
+                    displayBuyers(buyers);
+                } else {
+                    throw new Error('Failed to load buyers');
+                }
+            } catch (error) {
+                console.error('Error loading buyers:', error);
+                showAlert('Failed to load buyers', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayBuyers(buyers) {
+            const tbody = document.getElementById('buyersTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const searchTerm = document.getElementById('buyerSearch').value.toLowerCase();
+            const commodityFilter = document.getElementById('buyerCommodityFilter').value;
+
+            const filteredBuyers = buyers.filter(buyer => {
+                const matchesSearch = buyer.name.toLowerCase().includes(searchTerm) || 
+                                     buyer.commodity.toLowerCase().includes(searchTerm) ||
+                                     buyer.location.toLowerCase().includes(searchTerm);
+                const matchesCommodity = commodityFilter === 'all' || buyer.commodity === commodityFilter;
+                return matchesSearch && matchesCommodity;
+            });
+
+            if (filteredBuyers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-user-times" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No buyers found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredBuyers.forEach(buyer => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${buyer.name}</strong></td>
+                    <td>${buyer.commodity}</td>
+                    <td>${buyer.location}</td>
+                    <td>${buyer.max_price ? 'ZMW ' + buyer.max_price.toFixed(2) : 'N/A'}</td>
+                    <td>${buyer.min_volume ? buyer.min_volume + ' kg' : 'N/A'}</td>
+                    <td>${buyer.phone}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-star" style="color: #FFD700;"></i>
+                            <span>${buyer.rating.toFixed(1)}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${buyer.verified ? 'badge-success' : 'badge-warning'}">
+                            ${buyer.verified ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-small" onclick="editBuyer(${buyer.id}, '${buyer.name}', '${buyer.commodity}', '${buyer.location}', '${buyer.phone}', ${buyer.max_price || 0}, ${buyer.min_volume || 0}, ${buyer.verified}, ${buyer.rating})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="confirmAction('deleteBuyer', ${buyer.id}, 'Delete buyer ${buyer.name}?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load activity logs
+        async function loadActivityLogs() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/logs`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const logs = await response.json();
+                    displayActivityLogs(logs);
+                } else {
+                    throw new Error('Failed to load activity logs');
+                }
+            } catch (error) {
+                console.error('Error loading activity logs:', error);
+                showAlert('Failed to load activity logs', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayActivityLogs(logs) {
+            const tbody = document.getElementById('activityTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const searchTerm = document.getElementById('activitySearch').value.toLowerCase();
+            const typeFilter = document.getElementById('activityTypeFilter').value;
+
+            const filteredLogs = logs.filter(log => {
+                const matchesSearch = log.admin_user.toLowerCase().includes(searchTerm) || 
+                                     log.action.toLowerCase().includes(searchTerm) ||
+                                     log.details.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilter === 'all' || 
+                                   (typeFilter === 'admin' && log.admin_user.includes('admin')) ||
+                                   (typeFilter === 'user' && !log.admin_user.includes('admin'));
+                return matchesSearch && matchesType;
+            });
+
+            if (filteredLogs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No activity logs found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredLogs.forEach(log => {
+                const row = document.createElement('tr');
+                const time = new Date(log.created_at).toLocaleString();
+                
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td><strong>${log.admin_user}</strong></td>
+                    <td><span class="badge badge-primary">${log.action}</span></td>
+                    <td>${log.details}</td>
+                    <td><small>${log.ip_address}</small></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load archived items
+        async function loadArchived() {
+            showLoading(true);
+            
+            const type = document.getElementById('archiveTypeFilter').value;
+            
+            try {
+                let endpoint, displayFunction;
+                
+                switch(type) {
+                    case 'users':
+                        endpoint = `${API_BASE}/admin/users?archived=true`;
+                        displayFunction = displayArchivedUsers;
+                        break;
+                    case 'prices':
+                        endpoint = `${API_BASE}/prices?archived=true`;
+                        displayFunction = displayArchivedPrices;
+                        break;
+                    case 'buyers':
+                        endpoint = `${API_BASE}/buyers?archived=true`;
+                        displayFunction = displayArchivedBuyers;
+                        break;
+                }
+
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayFunction(data);
+                } else {
+                    throw new Error('Failed to load archived items');
+                }
+            } catch (error) {
+                console.error('Error loading archived items:', error);
+                showAlert('Failed to load archived items', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayArchivedUsers(users) {
+            const thead = document.getElementById('archivedTableHead');
+            const tbody = document.getElementById('archivedTableBody');
+            
+            thead.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Archived Date</th>
+                    <th>Actions</th>
+                </tr>
+            `;
+            
+            tbody.innerHTML = '';
+            
+            if (users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-archive" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No archived users found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                const archivedDate = user.archived_at ? new Date(user.archived_at).toLocaleDateString() : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.username}</td>
+                    <td><span class="badge ${user.role === 'admin' ? 'badge-danger' : user.role === 'farmer' ? 'badge-success' : 'badge-warning'}">${user.role}</span></td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${archivedDate}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-success btn-small" onclick="restoreItem('user', '${user.user_id}')">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayArchivedPrices(prices) {
+            const thead = document.getElementById('archivedTableHead');
+            const tbody = document.getElementById('archivedTableBody');
+            
+            thead.innerHTML = `
+                <tr>
+                    <th>Commodity</th>
+                    <th>Market</th>
+                    <th>Price</th>
+                    <th>Added By</th>
+                    <th>Archived Date</th>
+                    <th>Actions</th>
+                </tr>
+            `;
+            
+            tbody.innerHTML = '';
+            
+            if (prices.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-archive" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No archived prices found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            prices.forEach(price => {
+                const row = document.createElement('tr');
+                const archivedDate = price.archived_at ? new Date(price.archived_at).toLocaleDateString() : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${price.commodity}</td>
+                    <td>${price.market}</td>
+                    <td>ZMW ${price.price.toFixed(2)}</td>
+                    <td>${price.added_by}</td>
+                    <td>${archivedDate}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-success btn-small" onclick="restoreItem('price', ${price.id})">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayArchivedBuyers(buyers) {
+            const thead = document.getElementById('archivedTableHead');
+            const tbody = document.getElementById('archivedTableBody');
+            
+            thead.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>Commodity</th>
+                    <th>Location</th>
+                    <th>Phone</th>
+                    <th>Archived Date</th>
+                    <th>Actions</th>
+                </tr>
+            `;
+            
+            tbody.innerHTML = '';
+            
+            if (buyers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray);">
+                            <i class="fas fa-archive" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No archived buyers found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            buyers.forEach(buyer => {
+                const row = document.createElement('tr');
+                const archivedDate = buyer.archived_at ? new Date(buyer.archived_at).toLocaleDateString() : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${buyer.name}</td>
+                    <td>${buyer.commodity}</td>
+                    <td>${buyer.location}</td>
+                    <td>${buyer.phone}</td>
+                    <td>${archivedDate}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-success btn-small" onclick="restoreItem('buyer', ${buyer.id})">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // CRUD Operations
+        async function deleteUser(userId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('User archived successfully', 'success');
+                    loadUsers();
+                    loadAdminStats();
+                } else {
+                    throw new Error('Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showAlert('Failed to delete user', 'error');
+            }
+        }
+
+        async function deletePrice(priceId) {
+            try {
+                const response = await fetch(`${API_BASE}/prices/${priceId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Price archived successfully', 'success');
+                    loadPrices();
+                    loadAdminStats();
+                } else {
+                    throw new Error('Failed to delete price');
+                }
+            } catch (error) {
+                console.error('Error deleting price:', error);
+                showAlert('Failed to delete price', 'error');
+            }
+        }
+
+        async function deleteBuyer(buyerId) {
+            try {
+                const response = await fetch(`${API_BASE}/buyers/${buyerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Buyer archived successfully', 'success');
+                    loadBuyers();
+                    loadAdminStats();
+                } else {
+                    throw new Error('Failed to delete buyer');
+                }
+            } catch (error) {
+                console.error('Error deleting buyer:', error);
+                showAlert('Failed to delete buyer', 'error');
+            }
+        }
+
+        async function restoreItem(type, id) {
+            let endpoint;
+            
+            switch(type) {
+                case 'user':
+                    endpoint = `${API_BASE}/admin/users/${id}/restore`;
+                    break;
+                case 'price':
+                    endpoint = `${API_BASE}/prices/${id}/restore`;
+                    break;
+                case 'buyer':
+                    endpoint = `${API_BASE}/buyers/${id}/restore`;
+                    break;
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Item restored successfully', 'success');
+                    loadArchived();
+                    loadAdminStats();
+                } else {
+                    throw new Error('Failed to restore item');
+                }
+            } catch (error) {
+                console.error('Error restoring item:', error);
+                showAlert('Failed to restore item', 'error');
+            }
+        }
+
+        // Edit price
+        function editPrice(id, commodity, market, price, volume, verified) {
+            document.getElementById('editPriceId').value = id;
+            document.getElementById('editCommodity').value = commodity;
+            document.getElementById('editMarket').value = market;
+            document.getElementById('editPrice').value = price;
+            document.getElementById('editVolume').value = volume || '';
+            document.getElementById('editVerified').checked = verified;
+            
+            document.getElementById('editPriceModal').style.display = 'flex';
+        }
+
+        async function updatePrice(e) {
+            e.preventDefault();
+            
+            const priceId = document.getElementById('editPriceId').value;
+            const priceData = {
+                commodity: document.getElementById('editCommodity').value,
+                market: document.getElementById('editMarket').value,
+                price: parseFloat(document.getElementById('editPrice').value),
+                volume: document.getElementById('editVolume').value || null,
+                verified: document.getElementById('editVerified').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/prices/${priceId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify(priceData)
+                });
+
+                if (response.ok) {
+                    showAlert('Price updated successfully', 'success');
+                    closeModal();
+                    loadPrices();
+                } else {
+                    throw new Error('Failed to update price');
+                }
+            } catch (error) {
+                console.error('Error updating price:', error);
+                showAlert('Failed to update price', 'error');
+            }
+        }
+
+        // Add price
+        function showAddPriceModal() {
+            document.getElementById('addPriceModal').style.display = 'flex';
+        }
+
+        async function addPrice(e) {
+            e.preventDefault();
+            
+            const priceData = {
+                commodity: document.getElementById('addCommodity').value,
+                market: document.getElementById('addMarket').value,
+                price: parseFloat(document.getElementById('addPrice').value),
+                volume: document.getElementById('addVolume').value || null,
+                verified: document.getElementById('addVerified').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/prices/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify(priceData)
+                });
+
+                if (response.ok) {
+                    showAlert('Price added successfully', 'success');
+                    closeModal();
+                    loadPrices();
+                    document.getElementById('addPriceForm').reset();
+                } else {
+                    throw new Error('Failed to add price');
+                }
+            } catch (error) {
+                console.error('Error adding price:', error);
+                showAlert('Failed to add price', 'error');
+            }
+        }
+
+        // Add buyer
+        function showAddBuyerModal() {
+            document.getElementById('addBuyerModal').style.display = 'flex';
+        }
+
+        async function addBuyer(e) {
+            e.preventDefault();
+            
+            const buyerData = {
+                name: document.getElementById('addBuyerName').value,
+                commodity: document.getElementById('addBuyerCommodity').value,
+                location: document.getElementById('addBuyerLocation').value,
+                phone: document.getElementById('addBuyerPhone').value,
+                max_price: document.getElementById('addBuyerMaxPrice').value || null,
+                min_volume: document.getElementById('addBuyerMinVolume').value || null,
+                verified: document.getElementById('addBuyerVerified').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/buyers/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify(buyerData)
+                });
+
+                if (response.ok) {
+                    showAlert('Buyer added successfully', 'success');
+                    closeModal();
+                    loadBuyers();
+                    document.getElementById('addBuyerForm').reset();
+                } else {
+                    throw new Error('Failed to add buyer');
+                }
+            } catch (error) {
+                console.error('Error adding buyer:', error);
+                showAlert('Failed to add buyer', 'error');
+            }
+        }
+
+        // Edit buyer (simplified version)
+        function editBuyer(id, name, commodity, location, phone, maxPrice, minVolume, verified, rating) {
+            // This would open a modal similar to editPrice
+            // For simplicity, we'll just show an alert
+            showAlert('Edit buyer functionality would go here. Implement similar to edit price.', 'info');
+        }
+
+        // Confirmation modal
+        function confirmAction(action, targetId, message) {
+            currentAction = action;
+            currentTargetId = targetId;
+            
+            document.getElementById('confirmTitle').textContent = 'Confirm Action';
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        document.getElementById('confirmActionBtn').onclick = function() {
+            switch(currentAction) {
+                case 'deleteUser':
+                    deleteUser(currentTargetId);
+                    break;
+                case 'deletePrice':
+                    deletePrice(currentTargetId);
+                    break;
+                case 'deleteBuyer':
+                    deleteBuyer(currentTargetId);
+                    break;
+            }
+            closeModal();
+        };
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            currentAction = null;
+            currentTargetId = null;
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.classList.toggle('active', show);
+            }
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(() => {
+            if (document.querySelector('.tab-content.active').id === 'usersTab') {
+                loadAdminStats();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Prices - FarmConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #1f6b43;
+            --primary-light: #3CB371;
+            --secondary: #FFA500;
+            --secondary-dark: #e69500;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --transition: all 0.3s ease;
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; text-align: center; margin-bottom: 3rem; color: var(--primary); position: relative; }
+        h2:after { content: ''; position: absolute; width: 80px; height: 4px; background-color: var(--secondary); bottom: -10px; left: 50%; transform: translateX(-50%); }
+        h3 { font-size: 1.5rem; color: var(--primary); }
+
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            background-color: var(--primary); 
+            color: white; 
+            padding: 12px 28px; 
+            border-radius: var(--radius); 
+            font-weight: 600; 
+            transition: var(--transition); 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            text-decoration: none; 
+            white-space: nowrap; 
+            height: 48px;
+        }
+        .btn:hover { background-color: var(--primary-dark); transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+        .btn-small { padding: 8px 16px; font-size: 0.9rem; height: auto; }
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-secondary:hover { background-color: var(--secondary-dark); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #218838; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+
+        /* Header */
+        header { 
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background-color: white; 
+            box-shadow: var(--shadow); 
+            padding: 15px 0; 
+            z-index: 1000;
+        }
+        .header-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none;
+        }
+        .logo i { margin-right: 10px; }
+        
+        /* Navigation */
+        nav ul { display: flex; list-style: none; gap: 20px; }
+        nav a { 
+            font-weight: 600; 
+            transition: var(--transition); 
+            position: relative; 
+            text-decoration: none;
+            color: var(--dark);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+        }
+        nav a:hover,
+        nav a.active { 
+            color: var(--primary); 
+            background: rgba(46, 139, 87, 0.1);
+        }
+        
+        .mobile-menu-btn { 
+            display: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--dark); 
+            background: none;
+            border: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: block;
+            padding: 100px 0 50px;
+            flex-grow: 1;
+        }
+
+        /* Filters */
+        .filters { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            flex-wrap: wrap; 
+            background: white; 
+            padding: 20px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+        }
+        .form-select { 
+            padding: 10px 15px; 
+            border: 1px solid var(--light-gray); 
+            border-radius: var(--radius); 
+            background: white; 
+            color: var(--dark); 
+            font-size: 14px; 
+            min-width: 200px; 
+            cursor: pointer;
+        }
+        .form-select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(46,139,87,0.1); 
+        }
+
+        /* Price Cards */
+        .price-cards { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 40px; 
+        }
+        .price-card { 
+            background: white; 
+            border-radius: var(--radius); 
+            padding: 20px; 
+            box-shadow: var(--shadow); 
+            border-left: 4px solid var(--primary); 
+            transition: var(--transition); 
+            position: relative;
+        }
+        .price-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .price-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        .price-commodity { 
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            color: var(--primary); 
+        }
+        .price-market { 
+            font-size: 0.9rem; 
+            color: var(--gray); 
+        }
+        .price-amount { 
+            font-size: 2rem; 
+            font-weight: 700; 
+            color: var(--dark); 
+            margin: 10px 0; 
+        }
+        .price-change { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            font-weight: 600; 
+        }
+        .price-up { color: var(--success); }
+        .price-down { color: var(--danger); }
+        .price-volume { 
+            color: var(--gray); 
+            font-size: 0.9rem; 
+            margin-top: 10px; 
+        }
+
+        /* Table */
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            border-radius: var(--radius); 
+            overflow: hidden; 
+            box-shadow: var(--shadow); 
+        }
+        .data-table th { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            padding: 15px; 
+            text-align: left; 
+            font-weight: 500; 
+            font-size: 0.9rem;
+        }
+        .data-table td { 
+            padding: 15px; 
+            border-bottom: 1px solid var(--light-gray); 
+            background: white; 
+            transition: var(--transition);
+        }
+        .data-table tr:hover td { 
+            background-color: rgba(46,139,87,0.05); 
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-success { background: var(--success); }
+        .badge-warning { background: var(--warning); }
+        .badge-danger { background: var(--danger); }
+        .badge-info { background: var(--info); }
+        .badge-primary { background: var(--primary); }
+
+        /* Alert */
+        .alert { 
+            padding: 15px 20px; 
+            border-radius: var(--radius); 
+            margin: 20px 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            animation: slideDown 0.3s ease; 
+        }
+        .alert-success { 
+            background-color: rgba(40,167,69,0.1); 
+            border: 1px solid var(--success); 
+            color: #155724; 
+        }
+        .alert-error { 
+            background-color: rgba(220,53,69,0.1); 
+            border: 1px solid var(--danger); 
+            color: #721c24; 
+        }
+        .alert-warning { 
+            background-color: rgba(255,193,7,0.1); 
+            border: 1px solid var(--warning); 
+            color: #856404; 
+        }
+        .alert-info { 
+            background-color: rgba(23,162,184,0.1); 
+            border: 1px solid var(--info); 
+            color: #0c5460; 
+        }
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Footer */
+        footer { 
+            background-color: #222; 
+            color: #ddd; 
+            padding: 60px 0 30px; 
+            margin-top: 50px; 
+        }
+        .footer-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 40px; 
+            margin-bottom: 40px; 
+        }
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 30px; 
+            border-top: 1px solid #444; 
+            color: #aaa; 
+            font-size: 0.9rem; 
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading-spinner.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Commodity Icons */
+        .commodity-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Market Region Selector */
+        .region-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .region-tab {
+            padding: 10px 20px;
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .region-tab:hover {
+            background: var(--light);
+        }
+        .region-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container { padding: 0 15px; }
+            nav { 
+                position: fixed; 
+                top: 70px; 
+                left: -100%; 
+                width: 100%; 
+                background-color: white; 
+                box-shadow: 0 10px 10px rgba(0,0,0,0.1); 
+                padding: 20px; 
+                transition: var(--transition); 
+                z-index: 999;
+            }
+            nav.active { left: 0; }
+            nav ul { flex-direction: column; gap: 10px; }
+            .mobile-menu-btn { display: block; }
+            .filters { flex-direction: column; }
+            .form-select { width: 100%; }
+            .price-cards { grid-template-columns: 1fr; }
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .toast {
+                min-width: 250px;
+                left: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            .region-tabs {
+                justify-content: center;
+            }
+            .region-tab {
+                flex: 1;
+                text-align: center;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-tractor"></i> FarmConnect
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="market-prices.html" class="active">Market Prices</a></li>
+                    <li><a href="price-forecast.html">Price Forecast</a></li>
+                    <li><a href="find-buyers.html">Find Buyers</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="main-content" id="mainContent">
+        <div class="container">
+            <h2>Live Market Prices</h2>
+            <p class="text-center" style="max-width: 800px; margin: 0 auto 30px; color: var(--gray);">
+                🇿🇲 Real-time commodity prices from markets across Zambia. Updated every 30 minutes from verified sources.
+            </p>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Loading market prices...</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-cards" id="statsCards">
+                <div class="stat-card">
+                    <div class="stat-label">Total Prices</div>
+                    <div class="stat-value" id="totalPricesCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Markets Covered</div>
+                    <div class="stat-value" id="marketsCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Commodities</div>
+                    <div class="stat-value" id="commoditiesCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Maize Price</div>
+                    <div class="stat-value">ZMW <span id="avgMaizePrice">0</span></div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <select class="form-select" id="commodityFilter">
+                    <option value="all">All Commodities</option>
+                    <option value="Maize">Maize</option>
+                    <option value="Tomatoes">Tomatoes</option>
+                    <option value="Beans">Beans</option>
+                    <option value="Groundnuts">Groundnuts</option>
+                    <option value="Rice">Rice</option>
+                    <option value="Soybeans">Soybeans</option>
+                    <option value="Sunflower">Sunflower</option>
+                    <option value="Potatoes">Potatoes</option>
+                    <option value="Onions">Onions</option>
+                    <option value="Cabbage">Cabbage</option>
+                    <option value="Chicken">Chicken</option>
+                    <option value="Beef">Beef</option>
+                    <option value="Fish">Fish</option>
+                    <option value="Eggs">Eggs</option>
+                    <option value="Milk">Milk</option>
+                    <option value="Sugar">Sugar</option>
+                </select>
+                <select class="form-select" id="marketFilter">
+                    <option value="all">All Markets</option>
+                    <option value="Lusaka">Lusaka Markets</option>
+                    <option value="Kabwe">Kabwe Markets</option>
+                    <option value="Ndola">Ndola Markets</option>
+                    <option value="Kitwe">Kitwe Markets</option>
+                    <option value="Livingstone">Livingstone Markets</option>
+                    <option value="Chipata">Chipata Markets</option>
+                    <option value="Solwezi">Solwezi Markets</option>
+                    <option value="Mongu">Mongu Markets</option>
+                    <option value="Kasama">Kasama Markets</option>
+                </select>
+                <select class="form-select" id="sortFilter">
+                    <option value="latest">Latest First</option>
+                    <option value="price_high">Price: High to Low</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="verified">Verified First</option>
+                    <option value="market">By Market</option>
+                </select>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-small" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-small btn-secondary" id="addPriceBtn">
+                        <i class="fas fa-plus"></i> Add Price
+                    </button>
+                    <button class="btn btn-small btn-success" id="viewChartBtn">
+                        <i class="fas fa-chart-line"></i> View Chart
+                    </button>
+                </div>
+            </div>
+
+            <!-- Region Tabs -->
+            <div class="region-tabs" id="regionTabs">
+                <div class="region-tab active" data-region="all">All Regions</div>
+                <div class="region-tab" data-region="Lusaka">Lusaka</div>
+                <div class="region-tab" data-region="Kabwe">Kabwe</div>
+                <div class="region-tab" data-region="Ndola">Ndola</div>
+                <div class="region-tab" data-region="Kitwe">Kitwe</div>
+                <div class="region-tab" data-region="Livingstone">Livingstone</div>
+            </div>
+
+            <!-- Price Cards -->
+            <div class="price-cards" id="priceCardsContainer">
+                <!-- Prices loaded dynamically -->
+            </div>
+
+            <!-- Price Table -->
+            <div style="background: white; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h3>Detailed Price History</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-small btn-success" id="exportBtn">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                        <button class="btn btn-small btn-secondary" id="printBtn">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <a href="dashboard.html" class="btn btn-small btn-outline">
+                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Market</th>
+                            <th>Commodity</th>
+                            <th>Price (ZMW/kg)</th>
+                            <th>Volume (kg)</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="priceTableBody">
+                        <!-- Table rows loaded dynamically -->
+                    </tbody>
+                </table>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-outline" id="loadMoreBtn">
+                        <i class="fas fa-arrow-down"></i> Load More Prices
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div>
+                    <h3 style="color: white;">FarmConnect</h3>
+                    <p>Cloud-Based Market Information Platform for Zambian Farmers.</p>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 15px;">Quick Links</h4>
+                    <p><a href="market-prices.html" style="color: #ddd; text-decoration: none;">Market Prices</a></p>
+                    <p><a href="price-forecast.html" style="color: #ddd; text-decoration: none;">Price Forecast</a></p>
+                    <p><a href="find-buyers.html" style="color: #ddd; text-decoration: none;">Find Buyers</a></p>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 15px;">Access Methods</h4>
+                    <p><i class="fas fa-globe"></i> Web: farmconnect.zm</p>
+                    <p><i class="fas fa-mobile-alt"></i> USSD: *123#</p>
+                    <p><i class="fas fa-sms"></i> SMS: PRICE to 45678</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FarmConnect - Mulungushi University Capstone Project</p>
+                <p>Student: Daka Felix (202206453) | Course: ICT 431 | Supervisor: Mr. E Nyirenda</p>
+                <p style="margin-top: 10px; font-size: 0.8rem; color: #777;">Market data updated: <span id="lastUpdateTime">Just now</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="addPriceModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeAddPriceModal">&times;</button>
+            <h3 style="margin-bottom: 20px;">Add New Price</h3>
+            <form id="addPriceForm">
+                <div style="display: grid; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Commodity *</label>
+                        <select class="form-select" id="addPriceCommodity" required style="width: 100%;">
+                            <option value="">Select Commodity</option>
+                            <option value="Maize">Maize</option>
+                            <option value="Tomatoes">Tomatoes</option>
+                            <option value="Beans">Beans</option>
+                            <option value="Groundnuts">Groundnuts</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Potatoes">Potatoes</option>
+                            <option value="Onions">Onions</option>
+                            <option value="Cabbage">Cabbage</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Market *</label>
+                        <select class="form-select" id="addPriceMarket" required style="width: 100%;">
+                            <option value="">Select Market</option>
+                            <option value="Lusaka Central Market">Lusaka Central Market</option>
+                            <option value="Kabwe Main Market">Kabwe Main Market</option>
+                            <option value="Ndola Main Market">Ndola Main Market</option>
+                            <option value="Kitwe Main Market">Kitwe Main Market</option>
+                            <option value="Livingstone Main Market">Livingstone Main Market</option>
+                            <option value="Chipata Main Market">Chipata Main Market</option>
+                            <option value="Solwezi Main Market">Solwezi Main Market</option>
+                            <option value="Mongu Main Market">Mongu Main Market</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Price (ZMW/kg) *</label>
+                        <input type="number" step="0.01" min="0" class="form-select" id="addPricePrice" required style="width: 100%; padding: 10px;" placeholder="e.g., 120.50">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Volume (kg)</label>
+                        <input type="number" step="1" min="0" class="form-select" id="addPriceVolume" style="width: 100%; padding: 10px;" placeholder="e.g., 1000">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Quality</label>
+                        <select class="form-select" id="addPriceQuality" style="width: 100%;">
+                            <option value="">Select Quality</option>
+                            <option value="Grade A">Grade A</option>
+                            <option value="Grade B">Grade B</option>
+                            <option value="Grade C">Grade C</option>
+                            <option value="Organic">Organic</option>
+                            <option value="Standard">Standard</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Source *</label>
+                        <input type="text" class="form-select" id="addPriceSource" required style="width: 100%; padding: 10px;" placeholder="e.g., Your Name, Market Official">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">
+                        <i class="fas fa-check"></i> Submit Price
+                    </button>
+                    <button type="button" class="btn btn-outline" id="cancelAddPrice" style="flex: 1;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="priceChartModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-close" id="closePriceChartModal">&times;</button>
+            <h3 style="margin-bottom: 20px;">Price Trend Chart</h3>
+            <div style="margin-bottom: 20px;">
+                <canvas id="priceTrendChart" height="400"></canvas>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn btn-outline" id="closeChartBtn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="priceDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closePriceDetailsModal">&times;</button>
+            <div id="priceDetailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================
+        // MARKET PRICES PAGE - FULLY FUNCTIONAL
+        // =========================================================
+
+        const API_BASE = 'http://127.0.0.1:5000/api';
+        
+        // Global State
+        let appState = {
+            prices: [],
+            filteredPrices: [],
+            currentPage: 1,
+            pageSize: 20,
+            isOnline: navigator.onLine,
+            user: null,
+            token: null,
+            isAuthenticated: false
+        };
+
+        // Commodity data
+        const COMMODITY_DATA = {
+            'Maize': { icon: '🌽', color: '#2E8B57', unit: 'kg' },
+            'Tomatoes': { icon: '🍅', color: '#FF6B6B', unit: 'kg' },
+            'Beans': { icon: '🫘', color: '#8B4513', unit: 'kg' },
+            'Groundnuts': { icon: '🥜', color: '#D2691E', unit: 'kg' },
+            'Rice': { icon: '🍚', color: '#FFE4C4', unit: 'kg' },
+            'Soybeans': { icon: '🥜', color: '#D2B48C', unit: 'kg' },
+            'Sunflower': { icon: '🌻', color: '#FFD700', unit: 'kg' },
+            'Potatoes': { icon: '🥔', color: '#D2B48C', unit: 'kg' },
+            'Onions': { icon: '🧅', color: '#9370DB', unit: 'kg' },
+            'Cabbage': { icon: '🥬', color: '#228B22', unit: 'kg' },
+            'Chicken': { icon: '🐔', color: '#FFD700', unit: 'kg' },
+            'Beef': { icon: '🐄', color: '#8B0000', unit: 'kg' },
+            'Fish': { icon: '🐟', color: '#1E90FF', unit: 'kg' },
+            'Eggs': { icon: '🥚', color: '#FFE4B5', unit: 'dozen' },
+            'Milk': { icon: '🥛', color: '#F0F8FF', unit: 'litre' },
+            'Sugar': { icon: '🍬', color: '#FFFFFF', unit: 'kg' }
+        };
+
+        // Market regions
+        const MARKET_REGIONS = {
+            'Lusaka': ['Lusaka Central Market', 'Lusaka South Market', 'Lusaka North Market', 'Soweto Market'],
+            'Kabwe': ['Kabwe Main Market', 'Kabwe Central Market', 'Makululu Market'],
+            'Ndola': ['Ndola Main Market', 'Ndola Central Market', 'Masala Market'],
+            'Kitwe': ['Kitwe Main Market', 'Kitwe Central Market', 'Chimwemwe Market'],
+            'Livingstone': ['Livingstone Main Market', 'Livingstone Central Market', 'Maramba Market'],
+            'Chipata': ['Chipata Main Market', 'Chipata Central Market'],
+            'Solwezi': ['Solwezi Main Market', 'Solwezi Central Market'],
+            'Mongu': ['Mongu Main Market', 'Mongu Central Market'],
+            'Kasama': ['Kasama Main Market', 'Kasama Central Market']
+        };
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            setupEventListeners();
+            initializeMarketFilters();
+            loadMarketPrices();
+        });
+
+        // Check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (token && userData) {
+                try {
+                    appState.token = token;
+                    appState.user = JSON.parse(userData);
+                    appState.isAuthenticated = true;
+                    
+                    // Update UI for authenticated user
+                    updateAuthUI();
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            }
+        }
+
+        // Update UI for authenticated user
+        function updateAuthUI() {
+            if (appState.isAuthenticated && appState.user) {
+                // Enable add price button
+                const addPriceBtn = document.getElementById('addPriceBtn');
+                if (addPriceBtn) {
+                    addPriceBtn.disabled = false;
+                }
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            
+            if (mobileMenuBtn && mainNav) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                    this.innerHTML = mainNav.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+            }
+
+            // Filters
+            document.getElementById('commodityFilter').addEventListener('change', filterPrices);
+            document.getElementById('marketFilter').addEventListener('change', filterPrices);
+            document.getElementById('sortFilter').addEventListener('change', filterPrices);
+            
+            // Buttons
+            document.getElementById('refreshBtn').addEventListener('click', loadMarketPrices);
+            document.getElementById('addPriceBtn').addEventListener('click', showAddPriceForm);
+            document.getElementById('viewChartBtn').addEventListener('click', showPriceChart);
+            document.getElementById('exportBtn').addEventListener('click', exportPrices);
+            document.getElementById('printBtn').addEventListener('click', printPrices);
+            
+            // Load more button
+            document.getElementById('loadMoreBtn').addEventListener('click', loadMorePrices);
+            
+            // Add price form
+            document.getElementById('addPriceForm').addEventListener('submit', handleAddPrice);
+            document.getElementById('closeAddPriceModal').addEventListener('click', closeAddPriceForm);
+            document.getElementById('cancelAddPrice').addEventListener('click', closeAddPriceForm);
+            
+            // Chart modal
+            document.getElementById('closePriceChartModal').addEventListener('click', closePriceChart);
+            document.getElementById('closeChartBtn').addEventListener('click', closePriceChart);
+            
+            // Price details modal
+            document.getElementById('closePriceDetailsModal').addEventListener('click', closePriceDetails);
+            
+            // Region tabs
+            setupRegionTabs();
+            
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Online/offline detection
+            window.addEventListener('online', () => {
+                appState.isOnline = true;
+                showToast('Back online! Loading latest prices...', 'success');
+                loadMarketPrices();
+            });
+            
+            window.addEventListener('offline', () => {
+                appState.isOnline = false;
+                showToast('You are offline. Using cached data.', 'warning');
+            });
+        }
+
+        // Setup region tabs
+        function setupRegionTabs() {
+            const tabs = document.querySelectorAll('.region-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Filter by region
+                    const region = this.getAttribute('data-region');
+                    filterByRegion(region);
+                });
+            });
+        }
+
+        // Initialize market filters with Zambian markets
+        function initializeMarketFilters() {
+            const marketFilter = document.getElementById('marketFilter');
+            if (marketFilter) {
+                // Clear existing options except "All Markets"
+                marketFilter.innerHTML = '<option value="all">All Markets</option>';
+                
+                // Add Zambian markets by region
+                Object.entries(MARKET_REGIONS).forEach(([region, markets]) => {
+                    markets.forEach(market => {
+                        const option = document.createElement('option');
+                        option.value = market;
+                        option.textContent = market;
+                        marketFilter.appendChild(option);
+                    });
+                });
+            }
+        }
+
+        // =========================================================
+        // LOAD MARKET PRICES
+        // =========================================================
+
+        // Load market prices
+        async function loadMarketPrices() {
+            showLoading(true);
+            
+            try {
+                // Check if online
+                if (!appState.isOnline) {
+                    loadCachedPrices();
+                    showAlert('You are offline. Showing cached data.', 'warning');
+                    return;
+                }
+                
+                const url = `${API_BASE}/prices/real?limit=100`;
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    appState.prices = data.prices || [];
+                    appState.filteredPrices = [...appState.prices];
+                    appState.currentPage = 1;
+                    
+                    // Cache prices for offline use
+                    cachePrices(data.prices);
+                    
+                    // Update stats
+                    updateStatistics(data.prices);
+                    
+                    // Update last updated time
+                    const now = new Date();
+                    document.getElementById('lastUpdateTime').textContent = 
+                        now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    // Display data
+                    displayPriceCards(appState.filteredPrices.slice(0, 6));
+                    displayPriceTable();
+                    
+                    showToast(`Loaded ${appState.prices.length} prices from ${getUniqueMarkets(data.prices).length} markets`, 'success');
+                } else {
+                    throw new Error(`Failed to load prices: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error loading prices:', error);
+                showAlert('Failed to load prices from server. Using cached data.', 'warning');
+                loadCachedPrices();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load more prices
+        function loadMorePrices() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            
+            // Simulate loading
+            setTimeout(() => {
+                const start = appState.currentPage * appState.pageSize;
+                const end = start + appState.pageSize;
+                const morePrices = appState.filteredPrices.slice(start, end);
+                
+                if (morePrices.length > 0) {
+                    displayMorePrices(morePrices);
+                    appState.currentPage++;
+                    showToast(`Loaded ${morePrices.length} more prices`, 'success');
+                } else {
+                    showAlert('No more prices to load', 'info');
+                }
+                
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.innerHTML = '<i class="fas fa-arrow-down"></i> Load More Prices';
+            }, 500);
+        }
+
+        // Display more prices in table
+        function displayMorePrices(prices) {
+            const tbody = document.getElementById('priceTableBody');
+            
+            prices.forEach(price => {
+                const row = createPriceTableRow(price);
+                tbody.appendChild(row);
+            });
+        }
+
+        // Cache prices for offline use
+        function cachePrices(prices) {
+            try {
+                localStorage.setItem('cachedPrices', JSON.stringify(prices));
+                localStorage.setItem('cachedPricesTimestamp', new Date().toISOString());
+            } catch (error) {
+                console.error('Error caching prices:', error);
+            }
+        }
+
+        // Load cached prices
+        function loadCachedPrices() {
+            try {
+                const cachedPrices = localStorage.getItem('cachedPrices');
+                const timestamp = localStorage.getItem('cachedPricesTimestamp');
+                
+                if (cachedPrices) {
+                    const prices = JSON.parse(cachedPrices);
+                    appState.prices = prices;
+                    appState.filteredPrices = [...prices];
+                    appState.currentPage = 1;
+                    
+                    updateStatistics(prices);
+                    
+                    // Update last updated time
+                    if (timestamp) {
+                        const date = new Date(timestamp);
+                        document.getElementById('lastUpdateTime').textContent = 
+                            date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ' (cached)';
+                    }
+                    
+                    displayPriceCards(appState.filteredPrices.slice(0, 6));
+                    displayPriceTable();
+                    
+                    showAlert(`Loaded ${prices.length} cached prices`, 'info');
+                } else {
+                    // No cached data, show sample data
+                    loadSamplePrices();
+                }
+            } catch (error) {
+                console.error('Error loading cached prices:', error);
+                loadSamplePrices();
+            }
+        }
+
+        // Load sample prices (for demonstration)
+        function loadSamplePrices() {
+            const samplePrices = generateSamplePrices(30);
+            appState.prices = samplePrices;
+            appState.filteredPrices = [...samplePrices];
+            appState.currentPage = 1;
+            
+            updateStatistics(samplePrices);
+            displayPriceCards(samplePrices.slice(0, 6));
+            displayPriceTable();
+            
+            showAlert('Loaded sample prices for demonstration', 'info');
+        }
+
+        // Generate sample prices
+        function generateSamplePrices(count = 30) {
+            const commodities = Object.keys(COMMODITY_DATA);
+            const markets = Object.values(MARKET_REGIONS).flat();
+            const sources = ['ZNFU', 'Ministry of Agriculture', 'IAPRI', 'CSO Zambia', 'Market Official', 'Farmer Report'];
+            
+            const prices = [];
+            const now = new Date();
+            
+            for (let i = 0; i < count; i++) {
+                const commodity = commodities[Math.floor(Math.random() * commodities.length)];
+                const market = markets[Math.floor(Math.random() * markets.length)];
+                const source = sources[Math.floor(Math.random() * sources.length)];
+                
+                const price = {
+                    id: i + 1,
+                    commodity,
+                    market,
+                    price: getRandomPrice(commodity),
+                    volume: Math.floor(Math.random() * 2000) + 100,
+                    recorded_at: new Date(now.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    verified: Math.random() > 0.3,
+                    source,
+                    quality: ['Grade A', 'Grade B', 'Grade C', 'Organic'][Math.floor(Math.random() * 4)]
+                };
+                
+                prices.push(price);
+            }
+            
+            // Sort by date (newest first)
+            prices.sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+            
+            return prices;
+        }
+
+        // Get random price based on commodity
+        function getRandomPrice(commodity) {
+            const basePrices = {
+                'Maize': { min: 100, max: 200 },
+                'Tomatoes': { min: 50, max: 150 },
+                'Beans': { min: 80, max: 180 },
+                'Groundnuts': { min: 150, max: 250 },
+                'Rice': { min: 180, max: 280 },
+                'Potatoes': { min: 60, max: 120 },
+                'Onions': { min: 40, max: 100 },
+                'Cabbage': { min: 30, max: 80 },
+                'Chicken': { min: 200, max: 350 },
+                'Beef': { min: 250, max: 400 },
+                'Fish': { min: 150, max: 300 },
+                'Eggs': { min: 60, max: 120 },
+                'Milk': { min: 25, max: 50 },
+                'Sugar': { min: 80, max: 150 }
+            };
+            
+            const range = basePrices[commodity] || { min: 50, max: 200 };
+            const price = range.min + Math.random() * (range.max - range.min);
+            return parseFloat(price.toFixed(2));
+        }
+
+        // =========================================================
+        // DISPLAY FUNCTIONS
+        // =========================================================
+
+        // Display price cards
+        function displayPriceCards(prices) {
+            const container = document.getElementById('priceCardsContainer');
+            
+            if (!prices || prices.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--gray); margin-bottom: 20px;"></i>
+                        <h3>No price data available</h3>
+                        <p style="color: var(--gray); margin-bottom: 20px;">No prices found for the selected filters</p>
+                        <button class="btn btn-small btn-secondary" onclick="loadMarketPrices()">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            prices.forEach(price => {
+                const change = (Math.random() * 10 - 5).toFixed(1);
+                const trend = parseFloat(change) >= 0 ? 'up' : 'down';
+                const commodityData = COMMODITY_DATA[price.commodity] || { icon: '📊', color: '#666' };
+                const unit = commodityData.unit || 'kg';
+                
+                const card = document.createElement('div');
+                card.className = 'price-card';
+                card.innerHTML = `
+                    <div class="price-header">
+                        <div class="price-commodity">
+                            <span class="commodity-icon">${commodityData.icon}</span>
+                            ${price.commodity}
+                        </div>
+                        <div class="price-market">
+                            <i class="fas fa-map-marker-alt"></i> ${price.market}
+                        </div>
+                    </div>
+                    <div class="price-amount">ZMW ${price.price.toFixed(2)}</div>
+                    <div class="price-change ${trend === 'up' ? 'price-up' : 'price-down'}">
+                        <i class="fas fa-${trend === 'up' ? 'arrow-up' : 'arrow-down'}"></i>
+                        ${Math.abs(change)}%
+                    </div>
+                    <div class="price-volume">
+                        <i class="fas fa-weight"></i> ${price.volume ? price.volume.toLocaleString() + ` ${unit}` : 'Volume not specified'}
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--gray); display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-clock"></i> ${formatDate(price.recorded_at)}</span>
+                        ${price.verified ? 
+                            '<span class="badge badge-success" style="padding: 2px 8px; font-size: 0.7rem;">Verified</span>' : 
+                            '<span class="badge badge-warning" style="padding: 2px 8px; font-size: 0.7rem;">Unverified</span>'}
+                    </div>
+                `;
+                
+                // Add click event to show details
+                card.addEventListener('click', () => showPriceDetails(price));
+                card.style.cursor = 'pointer';
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Display price table
+        function displayPriceTable() {
+            const tbody = document.getElementById('priceTableBody');
+            const pricesToShow = appState.filteredPrices.slice(0, appState.pageSize);
+            
+            if (!pricesToShow || pricesToShow.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                            <p>No price data available</p>
+                            <button class="btn btn-small btn-secondary" onclick="loadMarketPrices()" style="margin-top: 15px;">
+                                <i class="fas fa-sync-alt"></i> Try Again
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            pricesToShow.forEach(price => {
+                const row = createPriceTableRow(price);
+                tbody.appendChild(row);
+            });
+            
+            // Show/hide load more button
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = appState.filteredPrices.length > appState.pageSize ? 'block' : 'none';
+            }
+        }
+
+        // Create price table row
+        function createPriceTableRow(price) {
+            const row = document.createElement('tr');
+            const commodityData = COMMODITY_DATA[price.commodity] || { icon: '📊', color: '#666' };
+            const unit = commodityData.unit || 'kg';
+            
+            row.innerHTML = `
+                <td>
+                    <strong>${formatDate(price.recorded_at, true)}</strong><br>
+                    <small style="color: var(--gray);">${formatTime(price.recorded_at)}</small>
+                </td>
+                <td>
+                    <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 5px;"></i>
+                    ${price.market}
+                </td>
+                <td>
+                    <span class="commodity-icon">${commodityData.icon}</span>
+                    ${price.commodity}
+                </td>
+                <td><strong style="color: var(--primary); font-size: 1.1rem;">ZMW ${price.price.toFixed(2)}</strong></td>
+                <td>${price.volume ? price.volume.toLocaleString() + ` ${unit}` : '-'}</td>
+                <td>
+                    ${price.verified ? 
+                        '<span class="badge badge-success">Verified</span>' : 
+                        '<span class="badge badge-warning">Unverified</span>'}
+                </td>
+                <td>
+                    <small style="color: var(--gray);">${price.source || 'Zambian Market'}</small>
+                </td>
+                <td>
+                    <button class="btn btn-small btn-outline view-price-btn" data-price='${JSON.stringify(price)}' style="padding: 4px 8px; font-size: 0.8rem;">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </td>
+            `;
+            
+            // Add event listener to view button
+            row.querySelector('.view-price-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const priceData = JSON.parse(this.getAttribute('data-price'));
+                showPriceDetails(priceData);
+            });
+            
+            return row;
+        }
+
+        // =========================================================
+        // FILTERING AND SORTING
+        // =========================================================
+
+        // Filter prices based on selections
+        function filterPrices() {
+            const commodity = document.getElementById('commodityFilter').value;
+            const market = document.getElementById('marketFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            
+            // Start with all prices
+            let filtered = [...appState.prices];
+            
+            // Filter by commodity
+            if (commodity !== 'all') {
+                filtered = filtered.filter(p => p.commodity === commodity);
+            }
+            
+            // Filter by market
+            if (market !== 'all') {
+                filtered = filtered.filter(p => p.market.includes(market));
+            }
+            
+            // Sort
+            filtered.sort((a, b) => {
+                switch(sort) {
+                    case 'price_high':
+                        return (b.price || 0) - (a.price || 0);
+                    case 'price_low':
+                        return (a.price || 0) - (b.price || 0);
+                    case 'verified':
+                        return (b.verified ? 1 : 0) - (a.verified ? 1 : 0);
+                    case 'market':
+                        return a.market.localeCompare(b.market);
+                    default: // 'latest'
+                        return new Date(b.recorded_at) - new Date(a.recorded_at);
+                }
+            });
+            
+            appState.filteredPrices = filtered;
+            appState.currentPage = 1;
+            
+            // Update stats with filtered data
+            updateStatistics(filtered);
+            
+            displayPriceCards(filtered.slice(0, 6));
+            displayPriceTable();
+        }
+
+        // Filter by region
+        function filterByRegion(region) {
+            if (region === 'all') {
+                appState.filteredPrices = [...appState.prices];
+            } else {
+                const regionMarkets = MARKET_REGIONS[region] || [];
+                appState.filteredPrices = appState.prices.filter(p => 
+                    regionMarkets.some(market => p.market.includes(market))
+                );
+            }
+            
+            appState.currentPage = 1;
+            updateStatistics(appState.filteredPrices);
+            displayPriceCards(appState.filteredPrices.slice(0, 6));
+            displayPriceTable();
+        }
+
+        // =========================================================
+        // STATISTICS AND ANALYTICS
+        // =========================================================
+
+        // Update statistics
+        function updateStatistics(prices) {
+            if (!prices || prices.length === 0) {
+                document.getElementById('totalPricesCount').textContent = '0';
+                document.getElementById('marketsCount').textContent = '0';
+                document.getElementById('commoditiesCount').textContent = '0';
+                document.getElementById('avgMaizePrice').textContent = '0';
+                return;
+            }
+            
+            // Total prices
+            document.getElementById('totalPricesCount').textContent = prices.length.toLocaleString();
+            
+            // Unique markets
+            const markets = getUniqueMarkets(prices);
+            document.getElementById('marketsCount').textContent = markets.length;
+            
+            // Unique commodities
+            const commodities = [...new Set(prices.map(p => p.commodity))];
+            document.getElementById('commoditiesCount').textContent = commodities.length;
+            
+            // Average maize price
+            const maizePrices = prices.filter(p => p.commodity === 'Maize');
+            if (maizePrices.length > 0) {
+                const avgMaize = maizePrices.reduce((sum, p) => sum + p.price, 0) / maizePrices.length;
+                document.getElementById('avgMaizePrice').textContent = avgMaize.toFixed(2);
+            } else {
+                document.getElementById('avgMaizePrice').textContent = '0';
+            }
+        }
+
+        // Get unique markets
+        function getUniqueMarkets(prices) {
+            return [...new Set(prices.map(p => p.market))];
+        }
+
+        // =========================================================
+        // MODAL FUNCTIONS
+        // =========================================================
+
+        // Show add price form
+        function showAddPriceForm() {
+            if (!appState.isAuthenticated) {
+                showToast('Please login to add prices', 'warning');
+                window.location.href = 'login.html?redirect=market-prices.html';
+                return;
+            }
+            
+            const modal = document.getElementById('addPriceModal');
+            modal.style.display = 'flex';
+        }
+
+        // Close add price form
+        function closeAddPriceForm() {
+            const modal = document.getElementById('addPriceModal');
+            modal.style.display = 'none';
+            document.getElementById('addPriceForm').reset();
+        }
+
+        // Show price details modal
+        function showPriceDetails(price) {
+            const commodityData = COMMODITY_DATA[price.commodity] || { icon: '📊', color: '#666' };
+            const unit = commodityData.unit || 'kg';
+            
+            const detailsHtml = `
+                <div style="padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                        <span style="font-size: 2rem;">${commodityData.icon}</span>
+                        <div>
+                            <h3 style="margin: 0;">${price.commodity}</h3>
+                            <p style="color: var(--gray); margin: 0;">
+                                <i class="fas fa-map-marker-alt"></i> ${price.market}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--light); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Current Price:</span>
+                            <strong style="color: var(--primary); font-size: 1.2rem;">ZMW ${price.price.toFixed(2)}/${unit}</strong>
+                        </div>
+                        ${price.volume ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Volume Available:</span>
+                            <span>${price.volume.toLocaleString()} ${unit}</span>
+                        </div>
+                        ` : ''}
+                        ${price.quality ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Quality:</span>
+                            <span>${price.quality}</span>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Status:</span>
+                            <span class="badge ${price.verified ? 'badge-success' : 'badge-warning'}">
+                                ${price.verified ? 'Verified' : 'Pending Verification'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 0.9rem; color: var(--gray);">
+                        <p><i class="fas fa-calendar"></i> Recorded: ${formatDate(price.recorded_at, true)} at ${formatTime(price.recorded_at)}</p>
+                        <p><i class="fas fa-source"></i> Source: ${price.source || 'Unknown'}</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-small btn-outline" onclick="sharePrice('${price.commodity}', ${price.price}, '${price.market}')">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                        <button class="btn btn-small btn-success" onclick="setPriceAlert('${price.commodity}', ${price.price})">
+                            <i class="fas fa-bell"></i> Set Alert
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('priceDetailsContent').innerHTML = detailsHtml;
+            document.getElementById('priceDetailsModal').style.display = 'flex';
+        }
+
+        // Close price details modal
+        function closePriceDetails() {
+            document.getElementById('priceDetailsModal').style.display = 'none';
+        }
+
+        // Handle add price form submission
+        async function handleAddPrice(event) {
+            event.preventDefault();
+            
+            if (!appState.isAuthenticated) {
+                showToast('Please login to add prices', 'error');
+                return;
+            }
+            
+            const commodity = document.getElementById('addPriceCommodity').value;
+            const market = document.getElementById('addPriceMarket').value;
+            const price = parseFloat(document.getElementById('addPricePrice').value);
+            const volume = document.getElementById('addPriceVolume').value ? 
+                parseInt(document.getElementById('addPriceVolume').value) : null;
+            const quality = document.getElementById('addPriceQuality').value;
+            const source = document.getElementById('addPriceSource').value;
+            
+            // Validation
+            if (!commodity || !market || !price || !source) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (price <= 0) {
+                showToast('Price must be greater than zero', 'error');
+                return;
+            }
+            
+            // Prepare price data
+            const priceData = {
+                commodity,
+                market,
+                price: price,
+                unit: 'ZMW/kg',
+                volume,
+                quality,
+                source,
+                verified: false // User-submitted prices need verification
+            };
+            
+            try {
+                // In a real app, you would submit to the API
+                // For demo purposes, we'll simulate the submission
+                
+                // Simulate API call
+                showLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Add to local state
+                const newPrice = {
+                    id: Date.now(),
+                    ...priceData,
+                    recorded_at: new Date().toISOString(),
+                    verified: false
+                };
+                
+                appState.prices.unshift(newPrice);
+                appState.filteredPrices.unshift(newPrice);
+                
+                // Update display
+                updateStatistics(appState.prices);
+                displayPriceCards(appState.filteredPrices.slice(0, 6));
+                displayPriceTable();
+                
+                closeAddPriceForm();
+                showToast('Price submitted successfully! It will be verified by our team.', 'success');
+                
+            } catch (error) {
+                console.error('Error adding price:', error);
+                showToast('Failed to submit price. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // =========================================================
+        // CHART FUNCTIONS
+        // =========================================================
+
+        // Show price chart
+        function showPriceChart() {
+            if (appState.filteredPrices.length === 0) {
+                showToast('No data available for chart', 'warning');
+                return;
+            }
+            
+            const modal = document.getElementById('priceChartModal');
+            modal.style.display = 'flex';
+            
+            // Create chart after modal is shown
+            setTimeout(createPriceChart, 100);
+        }
+
+        // Close price chart
+        function closePriceChart() {
+            const modal = document.getElementById('priceChartModal');
+            modal.style.display = 'none';
+        }
+
+        // Create price chart
+        function createPriceChart() {
+            const canvas = document.getElementById('priceTrendChart');
+            if (!canvas) return;
+            
+            // Group prices by commodity and get latest prices
+            const commodityPrices = {};
+            const commodities = [...new Set(appState.filteredPrices.map(p => p.commodity))].slice(0, 5);
+            
+            commodities.forEach(commodity => {
+                const prices = appState.filteredPrices
+                    .filter(p => p.commodity === commodity)
+                    .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
+                    .slice(0, 10);
+                
+                commodityPrices[commodity] = prices.map(p => p.price).reverse();
+            });
+            
+            // Create chart data
+            const labels = Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`);
+            const datasets = commodities.map((commodity, index) => {
+                const commodityData = COMMODITY_DATA[commodity] || { color: '#666' };
+                return {
+                    label: commodity,
+                    data: commodityPrices[commodity] || [],
+                    borderColor: commodityData.color,
+                    backgroundColor: `${commodityData.color}20`,
+                    tension: 0.4,
+                    fill: true
+                };
+            });
+            
+            // Destroy existing chart if it exists
+            if (window.priceChart) {
+                window.priceChart.destroy();
+            }
+            
+            // Create new chart
+            const ctx = canvas.getContext('2d');
+            window.priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Price Trends (Last 10 Records)',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ZMW ${context.parsed.y.toFixed(2)}/kg`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: (value) => `ZMW ${value.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // =========================================================
+        // EXPORT AND SHARING
+        // =========================================================
+
+        // Export prices to CSV
+        function exportPrices() {
+            if (!appState.filteredPrices.length) {
+                showToast('No data to export', 'warning');
+                return;
+            }
+            
+            const headers = ['Date', 'Market', 'Commodity', 'Price (ZMW/kg)', 'Volume (kg)', 'Quality', 'Status', 'Source'];
+            const csvData = [
+                headers.join(','),
+                ...appState.filteredPrices.slice(0, 100).map(p => [
+                    formatDate(p.recorded_at, true),
+                    `"${p.market}"`,
+                    `"${p.commodity}"`,
+                    p.price.toFixed(2),
+                    p.volume || '',
+                    `"${p.quality || ''}"`,
+                    p.verified ? 'Verified' : 'Pending',
+                    `"${p.source || 'Zambian Market'}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `farmconnect-prices-${new Date().toISOString().split('T')[0]}.csv`;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('Prices exported to CSV file', 'success');
+        }
+
+        // Print prices
+        function printPrices() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>FarmConnect Market Prices</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            h1 { color: #2E8B57; text-align: center; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th { background: #2E8B57; color: white; padding: 10px; text-align: left; }
+                            td { padding: 8px; border-bottom: 1px solid #ddd; }
+                            .badge { padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
+                            .verified { background: #28a745; color: white; }
+                            .pending { background: #ffc107; color: #333; }
+                            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 0.9rem; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>FarmConnect Market Prices</h1>
+                        <p>Generated: ${new Date().toLocaleString()}</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Market</th>
+                                    <th>Commodity</th>
+                                    <th>Price (ZMW/kg)</th>
+                                    <th>Volume</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${appState.filteredPrices.slice(0, 50).map(p => `
+                                    <tr>
+                                        <td>${formatDate(p.recorded_at, true)}</td>
+                                        <td>${p.market}</td>
+                                        <td>${p.commodity}</td>
+                                        <td>${p.price.toFixed(2)}</td>
+                                        <td>${p.volume ? p.volume + ' kg' : '-'}</td>
+                                        <td><span class="badge ${p.verified ? 'verified' : 'pending'}">${p.verified ? 'Verified' : 'Pending'}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="footer">
+                            <p>FarmConnect - Zambian Market Information Platform</p>
+                            <p>Data Source: ${getUniqueMarkets(appState.filteredPrices).length} markets across Zambia</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Share price
+        function sharePrice(commodity, price, market) {
+            const text = `Check out ${commodity} price at ${market}: ZMW ${price.toFixed(2)}/kg on FarmConnect!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'FarmConnect Price',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Price copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        // Set price alert
+        function setPriceAlert(commodity, price) {
+            if (!appState.isAuthenticated) {
+                showToast('Please login to set price alerts', 'warning');
+                return;
+            }
+            
+            const alertPrice = prompt(`Set price alert for ${commodity} (current: ZMW ${price.toFixed(2)})`, (price * 1.1).toFixed(2));
+            
+            if (alertPrice && !isNaN(parseFloat(alertPrice))) {
+                // Save alert to localStorage
+                const alerts = JSON.parse(localStorage.getItem('priceAlerts') || '[]');
+                alerts.push({
+                    commodity,
+                    targetPrice: parseFloat(alertPrice),
+                    currentPrice: price,
+                    market: 'Any',
+                    created: new Date().toISOString()
+                });
+                localStorage.setItem('priceAlerts', JSON.stringify(alerts));
+                
+                showToast(`Alert set for ${commodity} at ZMW ${parseFloat(alertPrice).toFixed(2)}`, 'success');
+            }
+        }
+
+        // =========================================================
+        // UTILITY FUNCTIONS
+        // =========================================================
+
+        // Show loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            if (!container) return;
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${getAlertIcon(type)}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: inherit;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${getAlertIcon(type)}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Format date
+        function formatDate(dateString, full = false) {
+            const date = new Date(dateString);
+            if (full) {
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // Format time
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Helper functions
+        function getAlertIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'error': return 'exclamation-circle';
+                case 'warning': return 'exclamation-triangle';
+                default: return 'info-circle';
+            }
+        }
+
+        // Check for authentication on page load
+        window.addEventListener('load', function() {
+            // Update add price button based on authentication
+            updateAuthUI();
+        });
+    </script>
+</body>
+</html>

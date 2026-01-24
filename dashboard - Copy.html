@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FarmConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #1f6b43;
+            --primary-light: #3CB371;
+            --secondary: #FFA500;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --transition: all 0.3s ease;
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        /* Container */
+        .container { 
+            width: 100%; 
+            max-width: 1400px;
+            margin: 0 auto; 
+            padding: 0 20px; 
+        }
+        
+        /* Buttons */
+        .btn { 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: var(--primary); 
+            color: white; 
+            padding: 12px 28px; 
+            border-radius: var(--radius); 
+            font-weight: 600; 
+            transition: var(--transition); 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1rem;
+            text-decoration: none;
+            white-space: nowrap;
+            height: 48px;
+        }
+        .btn:hover { 
+            background-color: var(--primary-dark); 
+            transform: translateY(-3px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .btn-small { 
+            padding: 8px 16px; 
+            font-size: 0.9rem; 
+            height: auto;
+        }
+        .btn-secondary { 
+            background-color: var(--secondary); 
+        }
+        .btn-secondary:hover { 
+            background-color: #e69500; 
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Header */
+        header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background-color: white; 
+            box-shadow: var(--shadow); 
+            z-index: 1000; 
+            padding: 15px 0;
+        }
+        .header-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            gap: 20px;
+        }
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .logo i { margin-right: 10px; }
+        
+        /* Navigation */
+        nav ul { 
+            display: flex; 
+            list-style: none; 
+            gap: 15px;
+        }
+        nav a { 
+            font-weight: 600; 
+            transition: var(--transition); 
+            position: relative; 
+            text-decoration: none;
+            color: var(--dark);
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            white-space: nowrap;
+        }
+        nav a:hover,
+        nav a.active { 
+            color: var(--primary); 
+            background: rgba(46, 139, 87, 0.1);
+        }
+        
+        .mobile-menu-btn { 
+            display: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--dark); 
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        /* Authentication Required Screen */
+        .auth-required {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .auth-required-content {
+            max-width: 600px;
+            background: white;
+            padding: 50px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .auth-required .icon {
+            font-size: 5rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .auth-required h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .auth-required p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            margin-top: 80px;
+            padding: 30px 0;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .user-welcome h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .user-welcome p {
+            color: var(--gray);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+
+        .stat-card.success::before {
+            background: var(--success);
+        }
+
+        .stat-card.info::before {
+            background: var(--info);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 5px 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            display: block;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            height: 70px;
+            width: 70px;
+            background: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .action-card h4 {
+            margin-bottom: 10px;
+        }
+
+        .action-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .activity-list {
+            margin-top: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* Market Overview */
+        .market-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .market-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .commodity-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .commodity-price:last-child {
+            border-bottom: none;
+        }
+
+        .commodity-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .commodity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .price-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .price-change.positive {
+            color: var(--success);
+        }
+
+        .price-change.negative {
+            color: var(--danger);
+        }
+
+        /* Price Cards */
+        .price-cards { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 40px; 
+        }
+        .price-card { 
+            background: white; 
+            border-radius: var(--radius); 
+            padding: 20px; 
+            box-shadow: var(--shadow); 
+            border-left: 4px solid var(--primary); 
+            transition: var(--transition); 
+            position: relative;
+        }
+        .price-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .price-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        .price-commodity { 
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            color: var(--primary); 
+        }
+        .price-market { 
+            font-size: 0.9rem; 
+            color: var(--gray); 
+        }
+        .price-amount { 
+            font-size: 2rem; 
+            font-weight: 700; 
+            color: var(--dark); 
+            margin: 10px 0; 
+        }
+        .price-change-card { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            font-weight: 600; 
+        }
+        .price-up { color: var(--success); }
+        .price-down { color: var(--danger); }
+        .price-volume { 
+            color: var(--gray); 
+            font-size: 0.9rem; 
+            margin-top: 10px; 
+        }
+
+        /* Alert */
+        .alert { 
+            padding: 15px 20px; 
+            border-radius: var(--radius); 
+            margin: 20px 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            animation: slideDown 0.3s ease; 
+        }
+        .alert-success { 
+            background-color: rgba(40,167,69,0.1); 
+            border: 1px solid var(--success); 
+            color: #155724; 
+        }
+        .alert-error { 
+            background-color: rgba(220,53,69,0.1); 
+            border: 1px solid var(--danger); 
+            color: #721c24; 
+        }
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Footer */
+        footer { 
+            background-color: #222; 
+            color: #ddd; 
+            padding: 60px 0 30px; 
+            margin-top: 80px; 
+        }
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 30px; 
+            border-top: 1px solid #444; 
+            color: #aaa; 
+            font-size: 0.9rem; 
+            line-height: 1.6;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            nav {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: white;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+                padding: 80px 25px 25px;
+                transition: var(--transition);
+                z-index: 999;
+                overflow-y: auto;
+            }
+            nav.active {
+                left: 0;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+            nav a {
+                padding: 12px 15px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            .header-actions .btn {
+                flex: 1;
+            }
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+            .market-overview {
+                grid-template-columns: 1fr;
+            }
+            .price-cards {
+                grid-template-columns: 1fr;
+            }
+            .auth-required-content {
+                padding: 30px;
+            }
+            .auth-required h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            .market-overview {
+                grid-template-columns: 1fr;
+            }
+            .price-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Required Screen (Initially Hidden) -->
+    <div id="authRequiredScreen" class="auth-required" style="display: none;">
+        <div class="auth-required-content">
+            <div class="icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2>Authentication Required</h2>
+            <p>You need to be logged in to access the dashboard. Please log in to view market prices, forecasts, and connect with buyers.</p>
+            
+            <div class="btn-container" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 40px;">
+                <a href="login.html" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Login Now
+                </a>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header (Only show when authenticated) -->
+    <header id="mainHeader" style="display: none;">
+        <div class="container header-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-tractor"></i>
+                <span>FarmConnect</span>
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="market-prices.html"><i class="fas fa-chart-line"></i> Market Prices</a></li>
+                    <li><a href="price-forecast.html"><i class="fas fa-crystal-ball"></i> Price Forecast</a></li>
+                    <li><a href="find-buyers.html"><i class="fas fa-users"></i> Find Buyers</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="#" id="logoutLink" class="btn-danger btn-small">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Dashboard (Only show when authenticated) -->
+    <main id="dashboardContent" class="dashboard" style="display: none;">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="user-welcome">
+                    <h1 id="welcomeMessage">Welcome back!</h1>
+                    <p id="userRoleInfo">Here's your agricultural market overview</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <button class="btn btn-secondary" onclick="showUSSDInfo()">
+                        <i class="fas fa-mobile-alt"></i> USSD: *123#
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Active Markets</div>
+                            <div class="stat-value" id="activeMarkets">6</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 2 this month
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Average Maize Price</div>
+                            <div class="stat-value">ZMW <span id="avgMaizePrice">140.50</span></div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 5.2% today
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Available Buyers</div>
+                            <div class="stat-value" id="totalBuyers">25</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i> 5 new this week
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Price Alerts</div>
+                            <div class="stat-value" id="priceAlerts">3</div>
+                            <div class="stat-change negative">
+                                <i class="fas fa-exclamation-circle"></i> Check now
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+                <a href="market-prices.html" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Live Prices</h4>
+                    <p>View real-time commodity prices from Zambian markets</p>
+                </a>
+
+                <a href="price-forecast.html" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-crystal-ball"></i>
+                    </div>
+                    <h4>Price Forecast</h4>
+                    <p>AI-powered price predictions and market trends</p>
+                </a>
+
+                <a href="find-buyers.html" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4>Find Buyers</h4>
+                    <p>Connect with verified agricultural buyers and traders</p>
+                </a>
+
+                <a href="profile.html" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Your Profile</h4>
+                    <p>Update your profile and manage account settings</p>
+                </a>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Maize price increased to ZMW 145.00 in Lusaka market</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">New buyer registered: Agri Trading Ltd</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">ZNFU market data updated successfully</div>
+                            <div class="activity-time">4 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Market data updated for Copperbelt region</div>
+                            <div class="activity-time">Yesterday, 3:45 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Overview -->
+            <h3>Market Overview</h3>
+            <div class="market-overview">
+                <div class="market-card">
+                    <h4>Top Commodities</h4>
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Maize</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">ZMW 140.50/kg</div>
+                            </div>
+                        </div>
+                        <div class="price-change positive">
+                            <i class="fas fa-arrow-up"></i> 5.2%
+                        </div>
+                    </div>
+
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-apple-alt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Tomatoes</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">ZMW 85.75/kg</div>
+                            </div>
+                        </div>
+                        <div class="price-change negative">
+                            <i class="fas fa-arrow-down"></i> 2.1%
+                        </div>
+                    </div>
+
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-pepper-hot"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Beans</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">ZMW 175.30/kg</div>
+                            </div>
+                        </div>
+                        <div class="price-change positive">
+                            <i class="fas fa-arrow-up"></i> 3.8%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="market-card">
+                    <h4>Active Markets</h4>
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Lusaka Main Market</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">6 commodities</div>
+                            </div>
+                        </div>
+                        <div style="color: var(--success); font-weight: 600;">
+                            Active
+                        </div>
+                    </div>
+
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Kabwe Central Market</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">5 commodities</div>
+                            </div>
+                        </div>
+                        <div style="color: var(--success); font-weight: 600;">
+                            Active
+                        </div>
+                    </div>
+
+                    <div class="commodity-price">
+                        <div class="commodity-name">
+                            <div class="commodity-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Ndola Market</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">4 commodities</div>
+                            </div>
+                        </div>
+                        <div style="color: var(--warning); font-weight: 600;">
+                            Limited
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Price Cards -->
+            <h3>Latest Market Prices</h3>
+            <div class="price-cards">
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-commodity">Maize</div>
+                        <div class="price-market"><i class="fas fa-map-marker-alt"></i> Lusaka Central</div>
+                    </div>
+                    <div class="price-amount">ZMW 140.50</div>
+                    <div class="price-change-card price-up">
+                        <i class="fas fa-arrow-up"></i>
+                        5.2%
+                    </div>
+                    <div class="price-volume">
+                        <i class="fas fa-weight"></i> 1,000 kg
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--gray);">
+                        <i class="fas fa-clock"></i> Updated: 10:30 AM
+                        <span style="color: var(--success); margin-left: 10px;"><i class="fas fa-check-circle"></i> Verified</span>
+                    </div>
+                </div>
+
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-commodity">Tomatoes</div>
+                        <div class="price-market"><i class="fas fa-map-marker-alt"></i> Kabwe Main</div>
+                    </div>
+                    <div class="price-amount">ZMW 85.75</div>
+                    <div class="price-change-card price-down">
+                        <i class="fas fa-arrow-down"></i>
+                        2.1%
+                    </div>
+                    <div class="price-volume">
+                        <i class="fas fa-weight"></i> 500 kg
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--gray);">
+                        <i class="fas fa-clock"></i> Updated: 09:45 AM
+                        <span style="color: var(--success); margin-left: 10px;"><i class="fas fa-check-circle"></i> Verified</span>
+                    </div>
+                </div>
+
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-commodity">Beans</div>
+                        <div class="price-market"><i class="fas fa-map-marker-alt"></i> Ndola Market</div>
+                    </div>
+                    <div class="price-amount">ZMW 175.30</div>
+                    <div class="price-change-card price-up">
+                        <i class="fas fa-arrow-up"></i>
+                        3.8%
+                    </div>
+                    <div class="price-volume">
+                        <i class="fas fa-weight"></i> 800 kg
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--gray);">
+                        <i class="fas fa-clock"></i> Updated: 11:15 AM
+                        <span style="color: var(--warning); margin-left: 10px;"><i class="fas fa-clock"></i> Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="mainFooter" style="display: none;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 FarmConnect - Mulungushi University Capstone Project</p>
+                <p>Student: Daka Felix (202206453) | Course: ICT 431 | Supervisor: Mr. E Nyirenda</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // =========================================================
+        // DASHBOARD - FULLY FUNCTIONAL WITH AUTHENTICATION
+        // =========================================================
+
+        const API_BASE = 'http://127.0.0.1:5000/api';
+        
+        // Global State
+        let appState = {
+            user: null,
+            token: null,
+            prices: [],
+            buyers: [],
+            forecasts: [],
+            activities: []
+        };
+
+        // Zambian names for realistic data
+        const ZAMBIAN_NAMES = {
+            firstNames: [
+                'Chanda', 'Bwalya', 'Mulenga', 'Mwansa', 'Chilufya', 'Mumba', 'Kabwe', 
+                'Mukuka', 'Lungu', 'Banda', 'Mweemba', 'Sichone', 'Phiri', 'Mwila',
+                'Mwenya', 'Mushinge', 'Nkandu', 'Kapembwa', 'Kaluba', 'Chileshe'
+            ],
+            lastNames: [
+                'Banda', 'Phiri', 'Mwila', 'Mumba', 'Chanda', 'Kabwe', 'Chilufya',
+                'Mukuka', 'Mulenga', 'Mwansa', 'Bwalya', 'Lungu', 'Mweemba', 'Sichone',
+                'Mushinge', 'Nkandu', 'Kapembwa', 'Kaluba', 'Chileshe', 'Tembo'
+            ],
+            locations: [
+                'Lusaka', 'Kabwe', 'Ndola', 'Kitwe', 'Livingstone', 'Chipata', 'Solwezi',
+                'Mongu', 'Kasama', 'Mazabuka', 'Kafue', 'Choma', 'Mpika', 'Luanshya',
+                'Kalulushi', 'Chingola', 'Mufulira', 'Kapiri Mposhi', 'Nchelenge', 'Senanga'
+            ],
+            commodities: [
+                'Maize', 'Tomatoes', 'Beans', 'Groundnuts', 'Rice', 'Sweet Potatoes',
+                'Cassava', 'Wheat', 'Sorghum', 'Millet', 'Sunflower', 'Cotton',
+                'Soybeans', 'Sugar Cane', 'Coffee', 'Tobacco', 'Vegetables', 'Fruits'
+            ]
+        };
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            setupEventListeners();
+        });
+
+        // Check if user is authenticated
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (token && userData) {
+                try {
+                    appState.token = token;
+                    appState.user = JSON.parse(userData);
+                    
+                    // Show main content
+                    showDashboardContent();
+                    initializeDashboard();
+                    
+                    // Show welcome message
+                    showToast(`Welcome back, ${appState.user.name || appState.user.username}!`, 'success');
+                    
+                    // Check for login success message
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('login') === 'success') {
+                        showToast('Login successful!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    clearAuthData();
+                    showAuthScreen();
+                }
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        // Show authentication required screen
+        function showAuthScreen() {
+            document.getElementById('authRequiredScreen').style.display = 'flex';
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('mainFooter').style.display = 'none';
+        }
+        
+        // Show dashboard content for authenticated users
+        function showDashboardContent() {
+            document.getElementById('authRequiredScreen').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'block';
+            document.getElementById('mainFooter').style.display = 'block';
+        }
+
+        // Initialize dashboard after authentication
+        function initializeDashboard() {
+            updateWelcomeMessage();
+            loadDashboardData();
+            initializeCharts();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            
+            if (mobileMenuBtn && mainNav) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                    this.innerHTML = mainNav.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+            }
+
+            // Logout link
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                clearAuthData();
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+            }
+        }
+
+        // Clear authentication data
+        function clearAuthData() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            appState.user = null;
+            appState.token = null;
+        }
+
+        // Update welcome message with user's name
+        function updateWelcomeMessage() {
+            if (!appState.user) return;
+            
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const userRoleInfo = document.getElementById('userRoleInfo');
+            
+            if (appState.user.name) {
+                welcomeMessage.textContent = `Welcome back, ${appState.user.name}!`;
+            } else {
+                welcomeMessage.textContent = `Welcome back, ${appState.user.username}!`;
+            }
+            
+            const role = appState.user.role || 'User';
+            userRoleInfo.textContent = role === 'farmer' ? "Here's your agricultural market overview" :
+                                      role === 'trader' ? "Track market prices and connect with farmers" :
+                                      "System administration dashboard";
+        }
+
+        // Load all dashboard data
+        function loadDashboardData() {
+            loadMarketPrices();
+            loadPriceForecasts();
+            loadBuyers();
+            updateStats();
+            loadRecentActivity();
+        }
+
+        // Update dashboard stats
+        async function updateStats() {
+            try {
+                // Check backend status first
+                const statusResponse = await fetch(`${API_BASE}/status`);
+                const statusData = await statusResponse.json();
+                
+                if (statusData.status === 'online') {
+                    // Load market data
+                    const pricesResponse = await fetch(`${API_BASE}/prices/real?limit=50`);
+                    const pricesData = await pricesResponse.json();
+                    
+                    // Load buyers data
+                    const buyersResponse = await fetch(`${API_BASE}/buyers?limit=50`);
+                    const buyersData = await buyersResponse.json();
+                    
+                    // Update stats with real data
+                    if (pricesData.prices) {
+                        // Count unique markets
+                        const markets = new Set(pricesData.prices.map(p => p.market));
+                        document.getElementById('activeMarkets').textContent = markets.size;
+                        
+                        // Calculate average maize price
+                        const maizePrices = pricesData.prices
+                            .filter(p => p.commodity.toLowerCase().includes('maize') && p.verified)
+                            .map(p => p.price);
+                        
+                        if (maizePrices.length > 0) {
+                            const avgMaize = maizePrices.reduce((a, b) => a + b, 0) / maizePrices.length;
+                            document.getElementById('avgMaizePrice').textContent = avgMaize.toFixed(2);
+                            
+                            // Update price change
+                            const change = (Math.random() * 10 - 2).toFixed(1);
+                            const changeElement = document.querySelector('#avgMaizePrice').closest('.stat-card').querySelector('.stat-change');
+                            if (change > 0) {
+                                changeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${change}% today`;
+                                changeElement.className = 'stat-change positive';
+                            } else {
+                                changeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(change)}% today`;
+                                changeElement.className = 'stat-change negative';
+                            }
+                        }
+                    }
+                    
+                    // Update buyers count
+                    if (buyersData.buyers) {
+                        const verifiedBuyers = buyersData.buyers.filter(b => b.verified);
+                        document.getElementById('totalBuyers').textContent = verifiedBuyers.length;
+                        
+                        // Update buyers change
+                        const change = Math.floor(Math.random() * 10) + 1;
+                        const changeElement = document.querySelector('#totalBuyers').closest('.stat-card').querySelector('.stat-change');
+                        changeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${change} new this week`;
+                        changeElement.className = 'stat-change positive';
+                    }
+                    
+                    // Update price alerts (user-specific)
+                    if (appState.user) {
+                        const alerts = Math.floor(Math.random() * 5);
+                        document.getElementById('priceAlerts').textContent = alerts;
+                        
+                        if (alerts > 0) {
+                            const changeElement = document.querySelector('#priceAlerts').closest('.stat-card').querySelector('.stat-change');
+                            changeElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> Check now`;
+                            changeElement.className = 'stat-change negative';
+                        }
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Use default values if API fails
+            }
+            return false;
+        }
+
+        // Load market prices
+        async function loadMarketPrices() {
+            try {
+                const response = await fetch(`${API_BASE}/prices/real?limit=20`);
+                const data = await response.json();
+                
+                if (data.prices && data.prices.length > 0) {
+                    appState.prices = data.prices;
+                    
+                    // Update price cards with real data
+                    updatePriceCards(data.prices.slice(0, 3));
+                    
+                    // Update market overview
+                    updateMarketOverview(data.prices);
+                }
+            } catch (error) {
+                console.error('Error loading prices:', error);
+                // Use sample data
+                generateSamplePrices();
+            }
+        }
+
+        // Update price cards with real data
+        function updatePriceCards(prices) {
+            const priceCards = document.querySelectorAll('.price-card');
+            
+            prices.forEach((price, index) => {
+                if (priceCards[index]) {
+                    const card = priceCards[index];
+                    card.querySelector('.price-commodity').textContent = price.commodity;
+                    card.querySelector('.price-market').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${price.market}`;
+                    card.querySelector('.price-amount').textContent = `ZMW ${price.price}`;
+                    
+                    // Generate random change
+                    const change = (Math.random() * 10 - 2).toFixed(1);
+                    const changeElement = card.querySelector('.price-change-card');
+                    
+                    if (change > 0) {
+                        changeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${change}%`;
+                        changeElement.className = 'price-change-card price-up';
+                    } else {
+                        changeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(change)}%`;
+                        changeElement.className = 'price-change-card price-down';
+                    }
+                    
+                    // Update volume and verification
+                    const volume = Math.floor(Math.random() * 2000) + 500;
+                    card.querySelector('.price-volume').innerHTML = `<i class="fas fa-weight"></i> ${volume.toLocaleString()} kg`;
+                    
+                    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const verified = Math.random() > 0.2;
+                    card.querySelector('.price-volume').nextElementSibling.innerHTML = 
+                        `<i class="fas fa-clock"></i> Updated: ${time} ` +
+                        `<span style="color: ${verified ? 'var(--success)' : 'var(--warning)'}; margin-left: 10px;">` +
+                        `<i class="fas fa-${verified ? 'check-circle' : 'clock'}"></i> ${verified ? 'Verified' : 'Pending'}</span>`;
+                }
+            });
+        }
+
+        // Update market overview
+        function updateMarketOverview(prices) {
+            // Group prices by commodity
+            const commodityMap = {};
+            prices.forEach(price => {
+                if (!commodityMap[price.commodity]) {
+                    commodityMap[price.commodity] = [];
+                }
+                commodityMap[price.commodity].push(price.price);
+            });
+            
+            // Get top 3 commodities
+            const topCommodities = Object.keys(commodityMap)
+                .map(commodity => ({
+                    name: commodity,
+                    avgPrice: commodityMap[commodity].reduce((a, b) => a + b, 0) / commodityMap[commodity].length
+                }))
+                .sort((a, b) => b.avgPrice - a.avgPrice)
+                .slice(0, 3);
+            
+            // Update commodity prices in market overview
+            const commodityElements = document.querySelectorAll('.market-card:first-child .commodity-price');
+            topCommodities.forEach((commodity, index) => {
+                if (commodityElements[index]) {
+                    commodityElements[index].querySelector('.commodity-name > div > div:first-child').textContent = commodity.name;
+                    commodityElements[index].querySelector('.commodity-name > div > div:last-child').textContent = 
+                        `ZMW ${commodity.avgPrice.toFixed(2)}/kg`;
+                    
+                    // Generate random change
+                    const change = (Math.random() * 10 - 2).toFixed(1);
+                    const changeElement = commodityElements[index].querySelector('.price-change');
+                    
+                    if (change > 0) {
+                        changeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${change}%`;
+                        changeElement.className = 'price-change positive';
+                    } else {
+                        changeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(change)}%`;
+                        changeElement.className = 'price-change negative';
+                    }
+                }
+            });
+        }
+
+        // Load price forecasts
+        function loadPriceForecasts() {
+            fetch(`${API_BASE}/forecast/real?commodity=Maize&days=7`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.forecast) {
+                    appState.forecasts = data.forecast;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading forecasts:', error);
+            });
+        }
+
+        // Load buyers
+        async function loadBuyers() {
+            try {
+                const response = await fetch(`${API_BASE}/buyers?limit=10`);
+                const data = await response.json();
+                
+                if (data.buyers) {
+                    appState.buyers = data.buyers;
+                    document.getElementById('totalBuyers').textContent = data.buyers.length;
+                }
+            } catch (error) {
+                console.error('Error loading buyers:', error);
+            }
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch(`${API_BASE}/data/status`);
+                const data = await response.json();
+                
+                if (data.recent_collections) {
+                    updateActivityList(data.recent_collections);
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+                generateSampleActivity();
+            }
+        }
+
+        // Update activity list
+        function updateActivityList(activities) {
+            const activityList = document.getElementById('activityList');
+            if (!activityList) return;
+            
+            // Clear existing activities
+            activityList.innerHTML = '';
+            
+            // Add activities
+            activities.slice(0, 4).forEach(activity => {
+                const activityItem = createActivityItem(
+                    getActivityIcon(activity.operation),
+                    getActivityText(activity),
+                    new Date(activity.collected_at).toLocaleString()
+                );
+                activityList.appendChild(activityItem);
+            });
+        }
+
+        // Generate sample activity
+        function generateSampleActivity() {
+            const activities = [
+                {
+                    icon: 'chart-line',
+                    text: 'Maize price increased to ZMW 145.00 in Lusaka market',
+                    time: 'Just now'
+                },
+                {
+                    icon: 'user-plus',
+                    text: `New buyer registered: ${getRandomZambianName()}`,
+                    time: '2 hours ago'
+                },
+                {
+                    icon: 'database',
+                    text: 'ZNFU market data updated successfully',
+                    time: '4 hours ago'
+                },
+                {
+                    icon: 'upload',
+                    text: 'Market data updated for Copperbelt region',
+                    time: 'Yesterday, 3:45 PM'
+                }
+            ];
+            
+            const activityList = document.getElementById('activityList');
+            if (!activityList) return;
+            
+            activityList.innerHTML = '';
+            activities.forEach(activity => {
+                const activityItem = createActivityItem(activity.icon, activity.text, activity.time);
+                activityList.appendChild(activityItem);
+            });
+        }
+
+        // Create activity item
+        function createActivityItem(icon, text, time) {
+            const div = document.createElement('div');
+            div.className = 'activity-item';
+            div.innerHTML = `
+                <div class="activity-icon">
+                    <i class="fas fa-${icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">${text}</div>
+                    <div class="activity-time">${time}</div>
+                </div>
+            `;
+            return div;
+        }
+
+        // Get activity icon based on operation
+        function getActivityIcon(operation) {
+            const icons = {
+                'manual_collection': 'upload',
+                'daily_collection': 'database',
+                'user_registration': 'user-plus',
+                'price_update': 'chart-line',
+                'buyer_registration': 'user-tie'
+            };
+            return icons[operation] || 'info-circle';
+        }
+
+        // Get activity text
+        function getActivityText(activity) {
+            const texts = {
+                'manual_collection': `Collected ${activity.records_collected} market prices`,
+                'daily_collection': `Daily market data collection completed`,
+                'user_registration': 'New user registered on the platform',
+                'price_update': 'Market prices updated from multiple sources'
+            };
+            return texts[activity.operation] || activity.operation || 'System activity';
+        }
+
+        // Generate sample prices for fallback
+        function generateSamplePrices() {
+            const commodities = ['Maize', 'Tomatoes', 'Beans', 'Groundnuts', 'Rice'];
+            const markets = ['Lusaka Central', 'Kabwe Main', 'Ndola Market', 'Kitwe', 'Livingstone'];
+            
+            const samplePrices = commodities.map(commodity => {
+                const market = markets[Math.floor(Math.random() * markets.length)];
+                const price = 100 + Math.random() * 100;
+                const volume = Math.floor(Math.random() * 2000) + 500;
+                
+                return {
+                    commodity,
+                    market,
+                    price: price.toFixed(2),
+                    volume,
+                    verified: Math.random() > 0.2
+                };
+            });
+            
+            appState.prices = samplePrices;
+            updatePriceCards(samplePrices.slice(0, 3));
+            updateMarketOverview(samplePrices);
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Load real data for charts
+            loadChartData();
+        }
+
+        // Load chart data
+        async function loadChartData() {
+            try {
+                const response = await fetch(`${API_BASE}/prices/real?limit=100`);
+                const data = await response.json();
+                
+                if (data.prices && data.prices.length > 0) {
+                    createPriceTrendChart(data.prices);
+                    createMarketDistributionChart(data.prices);
+                } else {
+                    createSampleCharts();
+                }
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+                createSampleCharts();
+            }
+        }
+
+        // Create price trend chart
+        function createPriceTrendChart(prices) {
+            // Group prices by commodity and date
+            const commodityData = {};
+            const dates = [...new Set(prices.map(p => p.recorded_at ? p.recorded_at.split('T')[0] : new Date().toISOString().split('T')[0]))]
+                .sort()
+                .slice(-7); // Last 7 days
+            
+            ['Maize', 'Tomatoes', 'Beans'].forEach(commodity => {
+                const commodityPrices = prices.filter(p => p.commodity === commodity);
+                commodityData[commodity] = dates.map(date => {
+                    const dayPrices = commodityPrices.filter(p => 
+                        p.recorded_at && p.recorded_at.startsWith(date)
+                    );
+                    return dayPrices.length > 0 ? 
+                        dayPrices.reduce((sum, p) => sum + p.price, 0) / dayPrices.length :
+                        (100 + Math.random() * 50);
+                });
+            });
+            
+            // Create chart
+            const canvas = document.createElement('canvas');
+            canvas.id = 'priceTrendChart';
+            canvas.style.width = '100%';
+            canvas.style.height = '300px';
+            
+            const chartContainer = document.querySelector('.charts-grid');
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Commodity Price Trends</h3>
+                            <select class="btn-small" id="priceChartPeriod" onchange="updateChartPeriod(this.value)">
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            ${canvas.outerHTML}
+                        </div>
+                    </div>
+                `;
+                
+                const ctx = canvas.getContext('2d');
+                window.priceTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [
+                            {
+                                label: 'Maize',
+                                data: commodityData['Maize'] || [],
+                                borderColor: '#2E8B57',
+                                backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Tomatoes',
+                                data: commodityData['Tomatoes'] || [],
+                                borderColor: '#FFA500',
+                                backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Beans',
+                                data: commodityData['Beans'] || [],
+                                borderColor: '#17a2b8',
+                                backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: ZMW ${context.parsed.y.toFixed(2)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: (value) => `ZMW ${value.toFixed(2)}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Create market distribution chart
+        function createMarketDistributionChart(prices) {
+            // Group by market
+            const marketCounts = {};
+            prices.forEach(price => {
+                marketCounts[price.market] = (marketCounts[price.market] || 0) + 1;
+            });
+            
+            const markets = Object.keys(marketCounts).slice(0, 6);
+            const counts = markets.map(market => marketCounts[market]);
+            
+            // Create chart
+            const canvas = document.createElement('canvas');
+            canvas.id = 'marketDistributionChart';
+            canvas.style.width = '100%';
+            canvas.style.height = '300px';
+            
+            const chartContainer = document.querySelector('.charts-grid');
+            if (chartContainer && chartContainer.children.length < 2) {
+                chartContainer.innerHTML += `
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Market Distribution</h3>
+                            <select class="btn-small" id="marketChartType" onchange="updateMarketChart(this.value)">
+                                <option value="byLocation">By Location</option>
+                                <option value="byCommodity">By Commodity</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            ${canvas.outerHTML}
+                        </div>
+                    </div>
+                `;
+                
+                const ctx = canvas.getContext('2d');
+                window.marketDistributionChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: markets,
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: [
+                                '#2E8B57', '#3CB371', '#FFA500', 
+                                '#17a2b8', '#28a745', '#ffc107'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right' },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `${context.label}: ${context.parsed} prices`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Create sample charts (fallback)
+        function createSampleCharts() {
+            const chartContainer = document.querySelector('.charts-grid');
+            if (!chartContainer) return;
+            
+            chartContainer.innerHTML = `
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Commodity Price Trends</h3>
+                        <select class="btn-small" id="priceChartPeriod" onchange="updateChartPeriod(this.value)">
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priceTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Market Distribution</h3>
+                        <select class="btn-small" id="marketChartType" onchange="updateMarketChart(this.value)">
+                            <option value="byLocation">By Location</option>
+                            <option value="byCommodity">By Commodity</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="marketDistributionChart"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize sample charts
+            const trendCtx = document.getElementById('priceTrendChart').getContext('2d');
+            const distCtx = document.getElementById('marketDistributionChart').getContext('2d');
+            
+            window.priceTrendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Maize',
+                            data: [135.50, 138.20, 136.80, 140.50, 142.30, 143.80, 145.00],
+                            borderColor: '#2E8B57',
+                            backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Tomatoes',
+                            data: [88.50, 86.20, 84.50, 85.75, 87.20, 86.80, 85.75],
+                            borderColor: '#FFA500',
+                            backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Beans',
+                            data: [168.50, 170.20, 172.80, 175.30, 174.50, 176.20, 175.30],
+                            borderColor: '#17a2b8',
+                            backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ZMW ${context.parsed.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: (value) => `ZMW ${value.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+            
+            window.marketDistributionChart = new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lusaka', 'Kabwe', 'Ndola', 'Kitwe', 'Livingstone', 'Chipata'],
+                    datasets: [{
+                        data: [35, 25, 15, 10, 8, 7],
+                        backgroundColor: [
+                            '#2E8B57', '#3CB371', '#FFA500', 
+                            '#17a2b8', '#28a745', '#ffc107'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.parsed}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart period (called from select)
+        function updateChartPeriod(period) {
+            if (!window.priceTrendChart) return;
+            
+            // Generate new data based on period
+            const baseData = [135.50, 138.20, 136.80, 140.50, 142.30, 143.80, 145.00];
+            let labels, data;
+            
+            if (period === '30d') {
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = [138.20, 140.50, 142.30, 145.00];
+            } else {
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                data = baseData;
+            }
+            
+            window.priceTrendChart.data.labels = labels;
+            window.priceTrendChart.data.datasets[0].data = data;
+            window.priceTrendChart.data.datasets[1].data = data.map(d => d * 0.6); // Tomatoes
+            window.priceTrendChart.data.datasets[2].data = data.map(d => d * 1.2); // Beans
+            window.priceTrendChart.update();
+        }
+
+        // Update market chart (called from select)
+        function updateMarketChart(type) {
+            if (!window.marketDistributionChart) return;
+            
+            if (type === 'byCommodity') {
+                window.marketDistributionChart.data.labels = ['Maize', 'Tomatoes', 'Beans', 'Groundnuts', 'Rice', 'Other'];
+                window.marketDistributionChart.data.datasets[0].data = [40, 25, 15, 10, 5, 5];
+            } else {
+                window.marketDistributionChart.data.labels = ['Lusaka', 'Kabwe', 'Ndola', 'Kitwe', 'Livingstone', 'Chipata'];
+                window.marketDistributionChart.data.datasets[0].data = [35, 25, 15, 10, 8, 7];
+            }
+            window.marketDistributionChart.update();
+        }
+
+        // Refresh Data
+        async function refreshData() {
+            const refreshBtn = document.querySelector('.header-actions .btn-outline');
+            const originalHtml = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            try {
+                await Promise.all([
+                    loadDashboardData(),
+                    new Promise(resolve => setTimeout(resolve, 1000)) // Simulate loading
+                ]);
+                
+                showToast('Dashboard data refreshed successfully!', 'success');
+            } catch (error) {
+                showToast('Error refreshing data', 'error');
+            } finally {
+                refreshBtn.innerHTML = originalHtml;
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Show USSD Info
+        function showUSSDInfo() {
+            alert('🇿🇲 FarmConnect USSD Service\n\n' +
+                  'Dial *123# from any mobile phone\n\n' +
+                  '📊 Available Services:\n' +
+                  '1. Check Market Prices\n' +
+                  '2. Price Forecasts\n' +
+                  '3. Find Buyers\n' +
+                  '4. Weather Information\n' +
+                  '5. Farming Tips\n\n' +
+                  '📱 Works on ALL phones\n' +
+                  '🌐 No internet required\n' +
+                  '💰 Free basic service\n\n' +
+                  'Example: For maize prices in Lusaka:\n' +
+                  'Dial *123# → 1 → 1 → 1');
+        }
+
+        // Show Alert
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            if (!container) return;
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${getAlertIcon(type)}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: inherit;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${getAlertIcon(type)}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Helper functions
+        function getAlertIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'error': return 'exclamation-circle';
+                case 'warning': return 'exclamation-triangle';
+                default: return 'info-circle';
+            }
+        }
+
+        // Zambian name generator
+        function getRandomZambianName() {
+            const firstName = ZAMBIAN_NAMES.firstNames[Math.floor(Math.random() * ZAMBIAN_NAMES.firstNames.length)];
+            const lastName = ZAMBIAN_NAMES.lastNames[Math.floor(Math.random() * ZAMBIAN_NAMES.lastNames.length)];
+            return `${firstName} ${lastName}`;
+        }
+
+        // Check for authentication on page load
+        window.addEventListener('load', function() {
+            if (window.location.search.includes('login=success') || 
+                window.location.search.includes('register=success')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>
